@@ -279,9 +279,9 @@ function simRender() {
   };
 
   // треугольник раскрытия рисует CSS у .is-branch
-  const row = ({ level, cls = '', data = '', label, extra = '', mark = '' }) =>
+  const row = ({ level, cls = '', data = '', icon = '', label, extra = '', mark = '' }) =>
     `<div class="sim-row ${cls}" style="--level:${level}" ${data}>` +
-    '<span class="sim-row__toggle"></span>' +
+    `<span class="sim-row__toggle"></span>${icon}` +
     `<span class="sim-row__label">${simEsc(label)}</span>${extra}` +
     `<span class="sim-row__mark">${mark}</span></div>`;
 
@@ -301,6 +301,7 @@ function simRender() {
   const machineOpen = simMachineOpen || Boolean(simQuery);
   let html = row({
     level: 0, cls: `sim-row--branch is-branch${machineOpen ? ' is-open' : ''}`, data: 'data-node="machine"',
+    icon: treeNodeIconHtml('machine'),
     label: nameOf(tree.querySelector('.tree__item')),
     mark: simStatus(branchStatus(0, simOps.length - 1)),
   });
@@ -334,6 +335,7 @@ function simRender() {
         level: 2,
         cls: `sim-row--op is-branch${open ? ' is-open' : ''}${current ? ' is-current' : ''}`,
         data: `data-op="${i}"`,
+        icon: treeNodeIconHtml('operation', op.item.dataset.type),
         label: op.name,
         extra: `<span class="sim-row__tool">${simEsc(op.tool)}</span>`,
         mark: simStatus(opErr ? 'error' : opDone(i) ? 'done' : 'not-calculated'),
@@ -373,6 +375,7 @@ function simRender() {
     if (setupHtml || !simQuery) {
       html += row({
         level: 1, cls: `sim-row--branch is-branch${setupOpen ? ' is-open' : ''}`, data: `data-node="${s}"`,
+        icon: treeNodeIconHtml('setup'),
         label: setup.name, mark: simStatus(branchStatus(setup.first, setup.last)),
       }) + setupHtml;
     }

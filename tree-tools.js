@@ -183,7 +183,7 @@ function addOperation(base, group) {
   const same = [...setupItem.querySelectorAll('.tree__item:not(.tree__item--branch)')]
     .filter((item) => nameOf(item) === base || nameOf(item).startsWith(`${base} `)).length;
 
-  const node = { name: same ? `${base} ${same + 1}` : base, group, tool: OPERATION_TOOLS[base], status: 'not-calculated' };
+  const node = { name: same ? `${base} ${same + 1}` : base, type: base, group, tool: OPERATION_TOOLS[base], status: 'not-calculated' };
   const item = renderNode(node, Number(setupItem.getAttribute('aria-level')));
   if (after) after.after(item);
   else list.append(item);
@@ -397,23 +397,26 @@ const LINK_ROW_ICON = '<svg class="treemenu__icon" viewBox="0 0 28 28" fill="non
 const UNLINK_ROW_ICON = '<svg class="treemenu__icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M9 12 6 9.5 9 7z" fill="currentColor"/><path d="M10 9.5h1.5c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2h-5" stroke="currentColor"/><path d="M18 16l4-4M22 16l-4-4" stroke="var(--status-error)" stroke-linecap="round"/></svg>';
 
 // Пункт с переключателем: меню не закрывается, переключатель показывает состояние
+// item.setOn(on) — показать состояние, поменявшееся снаружи (зависимые переключатели)
 function treeMenuSwitch(label, on, onToggle) {
   let state = on;
   const item = treeMenuItem(label, {
     keepOpen: true,
     onPick: () => {
-      state = !state;
-      item.setAttribute('aria-checked', String(state));
-      item.querySelector('.ictl-switch').setAttribute('aria-checked', String(state));
+      item.setOn(!state);
       onToggle(state);
     },
   });
   item.setAttribute('role', 'menuitemcheckbox');
-  item.setAttribute('aria-checked', String(state));
   const toggle = document.createElement('span');
   toggle.className = 'ictl-switch';
-  toggle.setAttribute('aria-checked', String(state));
   item.append(toggle);
+  item.setOn = (next) => {
+    state = next;
+    item.setAttribute('aria-checked', String(state));
+    toggle.setAttribute('aria-checked', String(state));
+  };
+  item.setOn(state);
   return item;
 }
 
@@ -473,6 +476,8 @@ try {
 } catch {
   // испорченная запись — показываем всё
 }
+// сохранённое раньше «Sort / связи без поиска» — с поиском (ряд держится на нём)
+if (treeToolsShown.sort || treeToolsShown.links) treeToolsShown.search = true;
 
 function applyTreeTools() {
   TREE_TOOL_PARTS.forEach((part) => { part.el.hidden = !treeToolsShown[part.id]; });
@@ -505,13 +510,24 @@ function treeMenuRowSwitch(label, row, key) {
 }
 
 const VIEW_SETTINGS = {
-  operations: () => [
-    treeMenuLabel('Show under the header'),
-    ...TREE_TOOL_PARTS.map((part) => treeMenuSwitch(part.name, treeToolsShown[part.id], (on) => {
+  // Ряд держится на поиске: Sort или связи без поиска — пустая строка, которая всё равно занимает высоту.
+  // Включили Sort / связи — включается и поиск; выключили поиск — уходят и они (ряда нет)
+  operations: () => {
+    const switches = TREE_TOOL_PARTS.map((part) => treeMenuSwitch(part.name, treeToolsShown[part.id], (on) => {
       treeToolsShown[part.id] = on;
+      if (part.id !== 'search' && on) treeToolsShown.search = true;
+      if (part.id === 'search' && !on) Object.assign(treeToolsShown, { sort: false, links: false });
       applyTreeTools();
-    })),
-  ],
+      switches.forEach((item, index) => item.setOn(treeToolsShown[TREE_TOOL_PARTS[index].id]));
+    }));
+    // Режим одной операции — первым; то же, что двойной клик по разделителю под деревом (script.js)
+    const line = document.createElement('div');
+    line.className = 'treemenu__line';
+    const single = treeMenuSwitch('Single operation', !treeOpen, (on) => {
+      if (on === treeOpen) toggleTree();
+    });
+    return [single, line, treeMenuLabel('Show under the header'), ...switches];
+  },
   model: () => [
     treeMenuLabel('Show under the header'),
     treeMenuRowSwitch('Model tools', modelToolsRow, MODEL_TOOLS_KEY),

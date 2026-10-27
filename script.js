@@ -130,6 +130,8 @@ function render() {
   columnSplits().forEach((split, index) => {
     const active = Boolean(isSplit) && index < lowerIndex;
     split.classList.toggle('is-active', active);
+    split.classList.toggle('is-fold', index === 0); // сразу под деревом: двойной клик — одна операция
+    split.title = index === 0 ? 'Double-click: tree ↔ single operation' : '';
     split.tabIndex = active ? 0 : -1;
     split.setAttribute('aria-hidden', String(!active));
     if (active) split.setAttribute('aria-valuenow', String(Math.round(currentTreeHeight())));
@@ -157,7 +159,7 @@ function togglePanel(panel) {
   render();
 }
 
-// Дерево ↔ одна операция — двойной клик по названию вида Operations в шапке (model.js)
+// Дерево ↔ одна операция — двойной клик по разделителю сразу под деревом (ниже) и шестерёнка (tree-tools.js)
 
 // Шапки панелей вне колонки (справа, плавающие) обрабатывает docking.js
 PANEL_ORDER
@@ -234,7 +236,8 @@ operations.querySelector('.current__info').addEventListener('click', () => {
   operations.addEventListener('transitionend', scrollToSelected);
 });
 
-// Ручка высоты: тянуть мышью, стрелки ↑/↓ с фокусом на ручке, двойной клик — пополам
+// Ручка высоты: тянуть мышью, стрелки ↑/↓ с фокусом на ручке. Двойной клик по ручке сразу под деревом —
+// дерево ↔ одна операция (в виде Operations; и из режима одной операции, когда ручка не тянется)
 let splitDrag = null;
 
 function setTreeHeight(height) {
@@ -263,9 +266,8 @@ splits.forEach((split) => {
   split.addEventListener('pointercancel', endSplitDrag);
 
   split.addEventListener('dblclick', () => {
-    if (!split.classList.contains('is-active')) return;
-    treeHeight = null;
-    render();
+    if (split !== columnSplits()[0] || operations.dataset.view !== 'operations') return;
+    toggleTree();
   });
 
   split.addEventListener('keydown', (event) => {

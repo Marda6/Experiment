@@ -4780,3 +4780,26 @@ body {
 .tree-tools .tool-btn--fold {
   width: calc(var(--tree-tools-height) + 1px);
 }
+
+/* Иконки узлов дерева (op-icons.js): станок, установ, операции — 16px перед названием, цветом строки */
+.tree__icon {
+  flex-shrink: 0;
+  display: grid;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  opacity: 0.8;
+}
+
+.tree__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Разделитель сразу под деревом: двойной клик — дерево ↔ одна операция (script.js). Зона захвата шире
+   видимого зазора и в режиме одной операции, когда ручка высоты не тянется */
+.layers__split.is-fold::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}

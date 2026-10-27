@@ -3,8 +3,8 @@
 // Работа с моделью — не отдельный режим, а другой предмет выделения: выбрали объект в дереве модели
 // или грань в сцене — полоса функций и чат переходят к модели; выбрали узел в дереве операций — обратно
 // к обработке. Вид — сплит в шапке, как «+ ▾»: клик по названию — следующий вид, ▾ — список.
-// В одну операцию сворачивается только дерево операций (двойной клик по названию) — открывая другой вид,
-// панель раскрываем.
+// В одну операцию сворачивается только дерево операций (шестерёнка или двойной клик по разделителю
+// под деревом, script.js) — открывая другой вид, панель раскрываем.
 // operations, treeOpen, render, toggleTree, setPanelHidden — из script.js
 
 const modelTree = document.getElementById('model-tree');
@@ -289,31 +289,10 @@ function setViewMenuOpen(open) {
 
 viewMore.addEventListener('click', () => setViewMenuOpen(viewMenu.hidden));
 
-// Клик по названию — сразу следующий вид по кругу. В Operations двойной клик — дерево ↔ одна операция,
-// поэтому там одиночный клик ждёт, не будет ли второго. Второй щелчок, начатый в другом виде, не сворачивает
-// (быстрый двойной клик из Model просто переводит в Operations). С клавиатуры (detail 0) — сразу
-const DOUBLE_CLICK_WAIT = 300;
-let titleClickTimer = 0;
-
+// Клик по названию — сразу следующий вид по кругу
 const nextView = () => VIEWS[(VIEWS.findIndex((view) => view.id === treeView) + 1) % VIEWS.length];
 
-viewTitle.addEventListener('click', (event) => {
-  if (event.detail > 1) {
-    if (!titleClickTimer) return;
-    clearTimeout(titleClickTimer);
-    titleClickTimer = 0;
-    toggleTree();
-    return;
-  }
-  if (event.detail === 1 && treeView === 'operations') {
-    titleClickTimer = setTimeout(() => {
-      titleClickTimer = 0;
-      setTreeView(nextView().id);
-    }, DOUBLE_CLICK_WAIT);
-    return;
-  }
-  setTreeView(nextView().id);
-});
+viewTitle.addEventListener('click', () => setTreeView(nextView().id));
 
 viewMenu.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
@@ -339,7 +318,7 @@ function setTreeView(id) {
   viewNameSpans.forEach((span) => span.classList.toggle('is-current', span.dataset.view === id));
   viewOptions.forEach((option) => option.setAttribute('aria-selected', String(option.dataset.view === id)));
   // Подсказка — что будет по клику
-  const hint = `Next: ${nextView().name}` + (id === 'operations' ? ' · Double-click: one operation' : '');
+  const hint = `Next: ${nextView().name}`;
   viewTitle.title = hint;
   viewTitle.setAttribute('aria-label', `${view.name}. ${hint}`);
 

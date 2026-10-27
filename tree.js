@@ -48,6 +48,7 @@ function makeOperations(group, count) {
     const round = Math.floor(i / pool.length);
     return {
       name: base + (round ? ` ${round + 1}` : ''),
+      type: base, // тип — для иконки (op-icons.js)
       group, // группа в дереве не показывается, но нужна ассистенту в чате
       tool: OPERATION_TOOLS[base],
       status: 'not-calculated',
@@ -90,13 +91,16 @@ function renderNode(node, level) {
   name.className = 'tree__name';
   name.textContent = node.name;
 
-  row.append(toggle, name);
+  // иконка узла: станок, установ, операция по типу (op-icons.js)
+  const kind = level === 0 ? 'machine' : level === 1 ? 'setup' : 'operation';
+  row.append(toggle, treeNodeIcon(kind, node.type), name);
   item.append(row);
 
   // Столбик инструмента: номер — ссылка на инструмент, рядом название
   if (node.tool) {
     const [number, toolName] = node.tool;
     item.dataset.group = node.group;
+    item.dataset.type = node.type;
     item.dataset.tool = number;
     item.dataset.toolName = toolName;
 
