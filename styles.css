@@ -1,0 +1,4782 @@
+/* Темы. Дерево и Inspector — один светлый оттенок, Chat — тёмный тон того же семейства.
+   Тема ставится атрибутом data-theme на <html>; тот же атрибут на любом элементе
+   даёт ему цвета темы (так рисуются образцы в меню). */
+
+[data-theme="rams"] {
+  /* Rams — нейтральные серые без тёплого и холодного оттенка, как корпуса Braun.
+     Чат — антрацит, акцент — оранжевый Braun (чуть темнее, чтобы ссылки читались на светлом) */
+  --view-bg: #e2e2e1;
+  --panel-bg: #f2f2f1;
+  --panel-fg: #1a1a1a;
+  --chat-bg: #3a3a3a;
+  --chat-fg: #f2f2f1;
+  --accent: #b9470f;
+  --status-done: #3d8a52;
+  --status-warn: #a87a14;
+  --status-error: #c0392b;
+  --scene-object: #d6d6d4;
+  --scene-grid: #cacaca;
+  --scene-grid-center: #b4b4b4;
+}
+
+:root,
+[data-theme="stone"] {
+  /* Stone — тёплые серые, Braun */
+  --view-bg: #e3e0d9; /* фон view и 3D-сцены */
+  --panel-bg: #f1efea; /* дерево и Inspector */
+  --panel-fg: #23221f;
+  --chat-bg: #363430; /* тёплый графит */
+  --chat-fg: #efede7;
+  --accent: #a9512b; /* терракота — оранжевый Braun, приглушённый */
+  --status-done: #5f7a3a; /* олива */
+  --status-warn: #a87a14; /* янтарь */
+  --status-error: #b3363a; /* кирпично-красный */
+  --scene-object: #d9d6cf;
+  --scene-grid: #ccc8c0;
+  --scene-grid-center: #b8b3a9;
+}
+
+[data-theme="sage"] {
+  /* Sage — серо-зелёные, морская соль и олива */
+  --view-bg: #dadcd4;
+  --panel-bg: #eef0ea;
+  --panel-fg: #1f231e;
+  --chat-bg: #3d443b; /* тёмный шалфей */
+  --chat-fg: #edf0e9;
+  --accent: #7f5f18; /* охра — классическая пара к шалфею */
+  --status-done: #3f7a4c; /* глубокий зелёный */
+  --status-warn: #a8841a; /* светлее и желтее охры акцента */
+  --status-error: #ad4436;
+  --scene-object: #d2d6cd;
+  --scene-grid: #c7cbc1;
+  --scene-grid-center: #b0b6aa;
+}
+
+[data-theme="mist"] {
+  /* Mist — холодные серо-голубые */
+  --view-bg: #dbe0e3;
+  --panel-bg: #eef1f2;
+  --panel-fg: #1d2329;
+  --chat-bg: #2f3b47; /* naval */
+  --chat-fg: #eaeff3;
+  --accent: #2d62b0; /* кобальт */
+  --status-done: #2f7d6d; /* бирюзово-зелёный */
+  --status-warn: #a67a14;
+  --status-error: #bc3d3b;
+  --scene-object: #d1d7db;
+  --scene-grid: #c5ccd1;
+  --scene-grid-center: #aeb7be;
+}
+
+/* Тёмные пары светлых тем. Панели и view — тёмные в гамме своей темы, панели на шаг светлее сцены.
+   Чат не инвертирован: тот же цвет, что в светлой паре, только насыщеннее и чуть светлее,
+   чтобы отделяться от тёмных панелей. Акцент и статусы осветлены для тёмного фона */
+
+[data-theme="rams-dark"] {
+  /* Rams Dark — тот же нейтральный ряд в тёмном. Чат — антрацит на ступень светлее панелей,
+     оранжевый Braun осветлён */
+  --view-bg: #1b1b1b;
+  --panel-bg: #262626;
+  --panel-fg: #e8e8e7;
+  --chat-bg: #424242;
+  --chat-fg: #f2f2f1;
+  --accent: #ee7a3c;
+  --status-done: #63b37b;
+  --status-warn: #d9a441;
+  --status-error: #e46a5a;
+  --scene-object: #8e8e8d;
+  --scene-grid: #2a2a2a;
+  --scene-grid-center: #383838;
+}
+
+[data-theme="stone-dark"] {
+  /* Stone Dark — тёплые тёмные серые */
+  --view-bg: #1e1d1b;
+  --panel-bg: #292826;
+  --panel-fg: #e8e5df;
+  --chat-bg: #4a4237; /* тёплый графит: насыщенность и яркость подняты */
+  --chat-fg: #f0ece5;
+  --accent: #d9784e; /* терракота, осветлена */
+  --status-done: #8fae6a;
+  --status-warn: #d9a441;
+  --status-error: #e06a5a;
+  --scene-object: #948f87;
+  --scene-grid: #2c2a27;
+  --scene-grid-center: #3a3834;
+}
+
+[data-theme="sage-dark"] {
+  /* Sage Dark — тёмные серо-зелёные */
+  --view-bg: #1b1e1a;
+  --panel-bg: #252924;
+  --panel-fg: #e3e8e0;
+  --chat-bg: #344a39; /* тёмный шалфей: насыщенность и яркость подняты */
+  --chat-fg: #e9f0e6;
+  --accent: #c99a45; /* охра, осветлена */
+  --status-done: #6fb889;
+  --status-warn: #e3c350; /* желтее охры акцента, чтобы не путались */
+  --status-error: #e0675a;
+  --scene-object: #8c968a;
+  --scene-grid: #283026;
+  --scene-grid-center: #354036;
+}
+
+[data-theme="mist-dark"] {
+  /* Mist Dark — тёмная пара Mist. Панели и view — холодные тёмно-серые, панели на шаг светлее сцены.
+     Чат не инвертирован: тот же naval, только насыщеннее и чуть светлее, чтобы отделяться от панелей */
+  --view-bg: #1b1f23;
+  --panel-bg: #262a2f;
+  --panel-fg: #e3e7ea;
+  --chat-bg: #2a3f55; /* naval: насыщенность и яркость подняты */
+  --chat-fg: #e6edf3;
+  --accent: #6e9ae0; /* кобальт, осветлён для тёмного фона */
+  --status-done: #4aa892;
+  --status-warn: #d6a13c;
+  --status-error: #e0605a;
+  --scene-object: #8b939a;
+  --scene-grid: #2a3035;
+  --scene-grid-center: #384046;
+}
+
+:root {
+  /* Производные от темы */
+  --view-fg: var(--panel-fg);
+  --surface: var(--panel-bg);
+  --text: var(--panel-fg);
+  --divider: color-mix(in srgb, var(--panel-fg) 10%, transparent);
+  --selection-bg: var(--chat-bg); /* выделение — цветом чата, связывает панели */
+  --selection-fg: var(--chat-fg);
+  --status-ink: var(--panel-fg); /* тёмная точка внутри залитого ромба предупреждения */
+
+  /* Все панели — цвет темы с прозрачностью 10% и лёгким размытием: сквозь них видно сцену */
+  --panel-opacity: 90%;
+  --panel-blur: 6px;
+
+  /* Матовый пластик: только мелкое зерно, плоско — без бликов и теней */
+  --plastic-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.09 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Тёмная тема: то, что в :root выведено из светлых тем, правим отдельно (специфичность выше :root) */
+/* Всё тёмное: нативные списки и полосы прокрутки тёмные, зерно пластика — светлыми точками */
+:root[data-theme$="-dark"] {
+  color-scheme: dark;
+  --plastic-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.06 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Выделение — цветом чата, но светлее: должно читаться на тёмных панелях.
+   Точка в ромбе предупреждения остаётся тёмной, как в ENCY */
+:root[data-theme="rams-dark"] {
+  --selection-bg: #555555;
+  --selection-fg: #f6f6f5;
+  --status-ink: #1b1b1b;
+}
+
+:root[data-theme="stone-dark"] {
+  --selection-bg: #5c5245;
+  --selection-fg: #f6f2ec;
+  --status-ink: #1e1d1b;
+}
+
+:root[data-theme="sage-dark"] {
+  --selection-bg: #46644e;
+  --selection-fg: #f0f6ee;
+  --status-ink: #1b1e1a;
+}
+
+:root[data-theme="mist-dark"] {
+  --selection-bg: #36536f;
+  --selection-fg: #f2f6f9;
+  --status-ink: #1b1f23;
+}
+
+:root {
+  /* Header в том же ритме, что и слои: 4px отступ + контрол 32px */
+  --header-height: 40px;
+  --header-padding-x: 4px;
+  --burger-size: 32px;
+  --divider-height: 16px;
+  --divider-gap: 4px;
+
+  --layers-width: 400px;
+  --dock-width: 400px; /* правый док (docking.js) */
+  --layers-inset: 4px; /* отступ стопки от краёв view */
+  --layers-gap: 4px;   /* зазор между панелями */
+  --layer-head: 32px;
+  --layer-padding-x: 12px;
+  --layer-radius: 2px;
+  --layer-duration: 0.35s;
+  --layer-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --layer-border-strength: 12%; /* лёгкая рамка панели — доля цвета текста панели */
+  --divider-strength: 10%; /* линии-разделители внутри панели */
+
+  --tree-row: 24px;
+  --tree-indent: 16px;
+  --current-height: 54px; /* блок текущей операции: две строки текста, листалка из трёх кнопок по 18px */
+  --tool-column: 128px; /* столбик инструмента в дереве */
+  --tree-tools-height: 32px; /* строка поиска и действий под шапкой Operations */
+  --insp-label: 160px; /* столбик подписей в инспекторе */
+
+  /* Движения в коде симуляции (simulation.js): холостой ход — цвет ошибки, подвод — между ним и предупреждением,
+     врезание и отвод — предупреждение, рабочая подача — синий, подмешанный к тексту темы (светлее на тёмном) */
+  --motion-rapid: var(--status-error);
+  --motion-approach: color-mix(in oklab, var(--status-error) 45%, var(--status-warn));
+  --motion-feed: var(--status-warn);
+  --motion-work: color-mix(in oklab, #3d7ee6 72%, var(--panel-fg));
+  --sim-hole: var(--panel-bg); /* точка внутри ромба ошибки — цвет подложки */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--view-bg);
+  color: var(--text);
+}
+
+/* Header */
+
+.header {
+  position: relative;
+  z-index: 10; /* меню логотипа — поверх колонки панелей */
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: var(--header-height);
+  padding: 0 var(--header-padding-x);
+  background: var(--surface);
+  box-shadow: inset 0 -1px 0 var(--divider); /* линия не съедает высоту, контролы стоят ровно на 4px */
+}
+
+/* Вертикальный разделитель внутри header */
+
+.header__divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: var(--divider-height);
+  margin: 0 var(--divider-gap);
+  background: var(--divider);
+}
+
+/* Логотип ENCY — кнопка меню. Фирменный цвет логотипа — акцент темы */
+
+.logo {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--burger-size);
+  height: var(--burger-size);
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.logo:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.logo:active,
+.logo[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.logo:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.logo__icon {
+  width: 15px;
+  height: 15px;
+  fill: var(--accent);
+}
+
+/* Проекты в header (как в ENCY): новый, открыть, сохранить — кнопки 32×32, как логотип */
+
+.hgroup {
+  display: flex;
+  align-items: center;
+}
+
+/* Справа — уведомления, ещё и кнопки окна, прижаты к краю; вкладки сжимаются перед ними */
+.hgroup--right {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.hbtn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--burger-size);
+  height: var(--burger-size);
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.hbtn:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.hbtn:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.hbtn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Иконки header приглушены, как иконки в шапках панелей: полным цветом текста они слишком
+   тяжёлые (особенно в светлых темах). Наведение, нажатие, фокус — в полную силу */
+.hbtn__icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.72;
+  transition: opacity 0.15s ease;
+}
+
+.hbtn:hover .hbtn__icon,
+.hbtn:active .hbtn__icon,
+.hbtn:focus-visible .hbtn__icon {
+  opacity: 1;
+}
+
+.hbtn__icon--save {
+  width: 14px;
+  height: 14px;
+}
+
+.hbtn__icon--plus {
+  width: 12px;
+  height: 12px;
+}
+
+/* Вкладки проектов: активная — тон, неактивные — приглушённый текст; × видна у активной и при наведении,
+   точка — несохранённые изменения */
+
+.ptabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ptab {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: var(--burger-size);
+  border-radius: var(--layer-radius);
+  transition: background-color 0.15s ease;
+}
+
+.ptab:hover {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.ptab.is-active {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.ptab__name {
+  max-width: 180px;
+  height: 100%;
+  padding: 0 8px 0 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.ptab.is-active .ptab__name,
+.ptab:hover .ptab__name {
+  opacity: 1;
+}
+
+.ptab__name:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+  border-radius: var(--layer-radius);
+}
+
+.ptab__dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-right: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.ptab__x {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.ptab.is-active .ptab__x,
+.ptab:hover .ptab__x,
+.ptab__x:focus-visible {
+  opacity: 0.6;
+}
+
+.ptab__x:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.ptab__x:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.ptab__x-icon {
+  width: 8px;
+  height: 8px;
+}
+
+/* Меню логотипа — та же полупрозрачная поверхность, что у панелей */
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--layers-inset));
+  left: var(--header-padding-x);
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  padding: 4px;
+  border-radius: var(--layer-radius);
+  background-color: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+}
+
+.menu__label {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.menu__item:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.menu__item:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.menu__item:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Выбранная тема — как выделенная строка дерева */
+.menu__item[aria-checked="true"] {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+/* Образцы цветов темы: data-theme на контейнере даёт ему цвета этой темы */
+.menu__swatches {
+  display: flex;
+  gap: 2px;
+}
+
+.menu__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) 15%, transparent);
+}
+
+.menu__swatch--view {
+  background: var(--view-bg);
+}
+
+.menu__swatch--panel {
+  background: var(--panel-bg);
+}
+
+.menu__swatch--chat {
+  background: var(--chat-bg);
+}
+
+.menu__swatch--accent {
+  background: var(--accent);
+}
+
+/* Workspace */
+
+.workspace {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Матовый пластик — общая плоская поверхность для панели дерева и панелей стопки.
+   Цвет задаёт сам элемент через background-color, сверху ложится зерно. */
+
+.plastic {
+  background-image: var(--plastic-grain);
+  background-size: 160px 160px;
+}
+
+/* Шапка панели: клик переключает панель */
+
+.layer__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: var(--layer-head);
+  padding: 0 var(--layer-padding-x);
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.layer__header:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+/* Линия под шапкой — когда под ней есть содержимое: у открытой панели и всегда у Operations
+   (под ней дерево или текущая операция) */
+.layer.is-expanded > .layer__header,
+.layer--operations > .layer__bar {
+  border-radius: 0;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.layer__header:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.layer__header:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Заголовок панели — акцентом темы: отличается от заголовков вкладок внутри (Inspector → Setup) */
+.layer__title {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+/* на тёмном чате акцент светлых тем тонет — подмешиваем к нему текст панели */
+.layer--chat .layer__title {
+  color: color-mix(in oklab, var(--accent) 65%, var(--layer-fg));
+}
+
+/* View: 3D-сцена на весь фон */
+
+.view {
+  position: absolute;
+  inset: 0;
+  background: var(--view-bg);
+  color: var(--view-fg);
+}
+
+.view__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* Дерево операций */
+
+.tree,
+.tree__group {
+  list-style: none;
+}
+
+.tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+  transition: opacity 0.15s ease, visibility 0.15s;
+}
+
+/* Режим одной операции: Operations свёрнута до шапки и текущей операции,
+   дерево прячется и не выглядывает во время анимации */
+.layer--operations:not(.is-expanded) .tree {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Шапка Operations: заголовок слева (переключает дерево ↔ одна операция), справа действия-зоны */
+
+.layer__bar {
+  flex-shrink: 0;
+  display: flex;
+  height: var(--layer-head);
+}
+
+.layer__bar .layer__header {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0;
+}
+
+.bar-actions {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.bar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%;
+  min-width: var(--layer-head);
+  padding: 0 8px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* Разделитель слева у каждой кнопки шапки: заголовок | Calculate | Add — справа край панели.
+   Inset-тень рисуется поверх фона, подсветка её не скрывает */
+.bar-btn {
+  box-shadow: inset 1px 0 0 var(--layer-line);
+}
+
+.bar-btn:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.bar-btn:active,
+.bar-btn[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.bar-btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.bar-btn__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+/* Calculate: ▶ акцентом темы; пока считает — ■ Stop */
+.bar-btn--calc {
+  padding: 0 12px 0 8px;
+}
+
+/* Узкая шапка — у Calculate остаётся иконка, зона 32×32; название — в подсказке.
+   Порог — когда всей шапке перестаёт хватать места: вид 111 + сброс, Calculate, «+ ▾», настройки ≈ 325 */
+.layer__bar {
+  container-type: inline-size;
+}
+
+@container (max-width: 330px) {
+  .bar-btn--calc {
+    width: var(--layer-head);
+    padding: 0;
+  }
+
+  .bar-btn--calc .bar-btn__text {
+    display: none;
+  }
+}
+
+.calc-play {
+  fill: var(--accent);
+}
+
+.calc-stop {
+  display: none;
+  fill: currentColor;
+}
+
+.bar-btn--calc.is-running .calc-play {
+  display: none;
+}
+
+.bar-btn--calc.is-running .calc-stop {
+  display: block;
+}
+
+/* Сброс статусов — Core icn/reset, двухтональный. Зона 32×32, иконка по центру */
+.bar-btn--reset {
+  width: var(--layer-head);
+  padding: 0;
+}
+
+.bar-btn--reset svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+}
+
+/* Сплит-кнопка Add: снаружи один блок с разделителем слева, внутри две зоны —
+   + добавляет операцию последнего типа, ▾ открывает меню. Подсвечивается каждая половина */
+.bar-split {
+  display: flex;
+  box-shadow: inset 1px 0 0 var(--layer-line);
+}
+
+.bar-split .bar-btn {
+  box-shadow: none;
+}
+
+/* Иконки — строго по центру своих зон; зазор между + и ▾ задаёт ширина зон */
+.bar-btn--add,
+.bar-btn--settings {
+  width: var(--layer-head);
+  min-width: 0;
+  padding: 0;
+}
+
+/* Настройки — шестерёнка (как в ENCY), приглушена, как остальные иконки шапки */
+.bar-btn--settings svg {
+  fill: currentColor;
+  opacity: 0.7;
+}
+
+.bar-btn--more {
+  width: 24px;
+  min-width: 0;
+  padding: 0;
+}
+
+.add-plus {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.7;
+  stroke-width: 1.5;
+}
+
+.bar-btn__chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.6;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Строка под шапкой: поиск и действия над деревом — только пока дерево раскрыто */
+
+.tree-tools {
+  flex-shrink: 0;
+  display: flex;
+  height: var(--tree-tools-height);
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.layer--operations:not(.is-expanded) .tree-tools {
+  display: none;
+}
+
+.tree-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 0 var(--layer-padding-x);
+  cursor: text;
+}
+
+.tree-search__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.tree-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.tree-search__input::placeholder {
+  color: inherit;
+  opacity: 0.45;
+}
+
+.tree-search:focus-within {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.tree-search__count {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.tree-search__clear {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.tree-search__clear:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.tree-search__clear svg {
+  width: 8px;
+  height: 8px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+}
+
+/* Кнопки-зоны 32×32 у левого края, как листалка и рейка инспектора */
+.tool-btn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--tree-tools-height);
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.tool-btn:hover svg,
+.tool-btn:focus-visible svg {
+  opacity: 1;
+}
+
+/* Свернуть/раскрыть всё — одна кнопка, видна иконка доступного действия */
+.tool-btn--fold .fold-expand,
+.tool-btn--fold.is-collapsed .fold-collapse {
+  display: none;
+}
+
+.tool-btn--fold.is-collapsed .fold-expand {
+  display: inline;
+}
+
+/* Кнопки стоят слева от поиска — разделитель справа */
+.tool-btn {
+  box-shadow: inset -1px 0 0 var(--layer-line);
+}
+
+.tool-btn:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.tool-btn:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.tool-btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* приглушена иконка, а не кнопка — иначе бледнел бы и разделитель */
+.tool-btn svg {
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.reset-full,
+.reset-dim {
+  fill: currentColor;
+}
+
+.reset-dim {
+  fill-opacity: 0.48;
+}
+
+.reset-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.reset-line--dim {
+  stroke-opacity: 0.48;
+}
+
+/* Поиск: неподходящие строки скрыты, ветки с совпадениями раскрыты на время поиска */
+.tree__item.is-filtered-out {
+  display: none;
+}
+
+.tree.is-filtering .tree__group[hidden] {
+  display: block !important;
+}
+
+.tree.is-filtering .tree__item--branch > .tree__row > .tree__toggle::before {
+  transform: rotate(90deg);
+}
+
+/* Меню «Add operation» — выпадает под шапкой Operations, у правого края */
+
+.addmenu {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--layer-head) + var(--layers-gap));
+  right: 0;
+  width: 240px;
+  max-height: min(480px, 70%);
+  padding: 4px;
+  overflow: auto;
+  border-radius: var(--layer-radius);
+  background-color: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+.addmenu__group + .addmenu__group {
+  margin-top: 4px;
+}
+
+.addmenu__heading {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.addmenu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--tree-row);
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.addmenu__item:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.addmenu__item:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.addmenu__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.addmenu__tool {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+
+/* Текущая операция — часть панели Operations: на её фоне, без заливки.
+   Блок поделён на зоны без отступов: слева листалка (↑ предыдущая, ≡ список, ↓ следующая),
+   справа — сама операция. Кнопки занимают зоны целиком, углы обрезает панель */
+
+.current {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  height: var(--current-height);
+}
+
+/* Вертикальная линия между листалкой и операцией — поверх, подсветка кнопок её не перекрывает */
+.current::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--layer-head);
+  width: 1px;
+  background: var(--layer-line);
+  pointer-events: none;
+}
+
+.layer--operations.is-expanded .current {
+  display: none;
+}
+
+.current__nav {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.current__btn {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  width: var(--layer-head);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.current__btn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.current__btn:active,
+.current__btn[aria-expanded="true"] {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.current__btn:disabled {
+  opacity: 0.2;
+  background: transparent;
+  cursor: default;
+}
+
+.current__btn:focus-visible {
+  opacity: 1;
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.current__btn svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Сетка: номер | название | статус, под ними T# | инструмент. Номера — общий первый столбик */
+.current__info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr;
+  align-items: center;
+  padding: 0 var(--layer-padding-x);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.current__info:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.current__info:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.current.has-tool .current__info {
+  grid-template-rows: 1fr 1fr;
+}
+
+/* Линия между строками — от листалки до края, поверх подсветки */
+.current.has-tool::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: var(--layer-head);
+  right: 0;
+  height: 1px;
+  background: var(--layer-line);
+  pointer-events: none;
+}
+
+.current__index,
+.current__tool-number {
+  grid-column: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* пустой номер (ветка) не даёт отступа — название начинается от края */
+.current__index:not(:empty),
+.current__tool-number:not(:empty) {
+  padding-right: 8px;
+}
+
+.current__index {
+  grid-row: 1;
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.current__name,
+.current__tool-name {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.current__name {
+  grid-row: 1;
+}
+
+.current__status {
+  grid-column: 3;
+  grid-row: 1;
+  display: flex;
+}
+
+/* Инструмент — как столбик инструмента в дереве: номер акцентом, название приглушено */
+.current__tool-number {
+  grid-row: 2;
+  font-size: 12px;
+  color: var(--accent);
+}
+
+.current__tool-name {
+  grid-row: 2;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.current:not(.has-tool) .current__tool-number,
+.current:not(.has-tool) .current__tool-name {
+  display: none;
+}
+
+/* Ничего не выбрано — подпись приглушённая */
+.current.is-empty .current__name {
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+/* Список операций — выпадает под текущей операцией поверх панелей ниже */
+
+.oplist {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--layer-head) + var(--current-height) + var(--layers-gap));
+  left: 0;
+  right: 0;
+  max-height: min(480px, 70%);
+  padding: 4px;
+  overflow: auto;
+  border-radius: var(--layer-radius);
+  background-color: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+.oplist__group + .oplist__group {
+  margin-top: 4px;
+}
+
+.oplist__heading {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  color: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.oplist__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--tree-row);
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.oplist__option:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.oplist__option:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.oplist__option[aria-selected="true"] {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+.oplist__index {
+  flex-shrink: 0;
+  width: 24px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.5; /* прозрачностью — номер меняет цвет вместе с выделенным пунктом */
+}
+
+.oplist__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tree__row {
+  display: flex;
+  align-items: center;
+  height: var(--tree-row);
+  padding: 0 var(--layer-padding-x) 0 calc(var(--layer-padding-x) + var(--level) * var(--tree-indent));
+  border-radius: var(--layer-radius);
+  font-size: 13px;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+
+.tree__row:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.tree__item[aria-selected="true"] > .tree__row {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+.tree__toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: var(--tree-indent);
+  height: 100%;
+}
+
+.tree__item--branch > .tree__row > .tree__toggle {
+  cursor: pointer;
+}
+
+/* Треугольник раскрытия */
+.tree__item--branch > .tree__row > .tree__toggle::before {
+  content: "";
+  border-left: 5px solid currentColor;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.tree__item[aria-expanded="true"] > .tree__row > .tree__toggle::before {
+  transform: rotate(90deg);
+}
+
+.tree__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Столбик инструмента: номер-ссылка акцентным цветом и название */
+.tree__tool {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: var(--tool-column);
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.tree__tool-number {
+  flex-shrink: 0;
+  width: 24px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.tree__tool-number:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tree__tool-number:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* На тёмном выделении акцент теряется — ссылка цветом текста с подчёркиванием */
+.tree__item[aria-selected="true"] > .tree__row .tree__tool-number {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Разделитель столбиков (дерево, инспектор): зона 8px в зазоре между столбиками.
+   Линию не рисуем — она появляется при наведении на границу, в фокусе и пока тянем */
+.col-split {
+  position: absolute;
+  z-index: 1;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.col-split::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+  border-radius: var(--layer-radius);
+  transition: background-color 0.15s ease;
+}
+
+.col-split:hover::before {
+  background: color-mix(in srgb, var(--panel-fg) 25%, transparent);
+}
+
+.col-split:focus-visible {
+  outline: none;
+}
+
+.col-split:focus-visible::before,
+.col-split.is-dragging::before {
+  background: var(--panel-fg);
+}
+
+.is-col-resizing,
+.is-col-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* В дереве — в зазоре перед столбиком инструмента: от правого края скроллбар дерева,
+   отступ строки, статус (16 + 8) и сам столбик */
+.tree-split {
+  top: calc(var(--layer-head) + var(--tree-tools-height));
+  bottom: 0;
+  right: calc(var(--tree-scrollbar, 0px) + var(--layer-padding-x) + 24px + var(--tool-column));
+}
+
+.layer--operations:not(.is-expanded) .tree-split {
+  display: none;
+}
+
+/* Статусы операций — формы из ENCY Core, цвета из темы.
+   Нейтральное — цвет текста строки, прогрессия к готово — зелёный темы, ромбы — предупреждение и ошибка */
+.status {
+  --st-done: var(--status-done);
+  --st-warn: var(--status-warn);
+  --st-error: var(--status-error);
+
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+}
+
+/* На тёмном выделении цветные статусы светлеют, чтобы читаться */
+.tree__item[aria-selected="true"] > .tree__row .status {
+  --st-done: color-mix(in srgb, var(--status-done) 55%, white);
+  --st-warn: color-mix(in srgb, var(--status-warn) 65%, white);
+  --st-error: color-mix(in srgb, var(--status-error) 60%, white);
+}
+
+.status svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.st-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.7;
+}
+
+.st-fill {
+  fill: currentColor;
+  fill-opacity: 0.7;
+}
+
+.st-done-line {
+  fill: none;
+  stroke: var(--st-done);
+}
+
+.st-done-fill {
+  fill: var(--st-done);
+}
+
+.st-warn-solid {
+  fill: var(--st-warn);
+  stroke: var(--st-warn);
+  stroke-linejoin: round;
+}
+
+.st-warn-inner {
+  fill: var(--status-ink);
+}
+
+.st-warn-line,
+.st-error-line {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.st-warn-line {
+  stroke: var(--st-warn);
+}
+
+.st-warn-fill {
+  fill: var(--st-warn);
+}
+
+.st-error-line {
+  stroke: var(--st-error);
+}
+
+.st-error-fill {
+  fill: var(--st-error);
+}
+
+/* Приглушаем прозрачностью, а не color-mix(currentColor): тот не пересчитывается,
+   когда строка меняет цвет при выделении, и текст остаётся тёмным на тёмном */
+.tree__tool-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.6;
+}
+
+/* Колонка панелей: Operations, Inspector, Chat. Свёрнутая панель — только шапка,
+   раскрытые делят высоту через flex-grow (его выставляет script.js) */
+
+.layers {
+  position: absolute;
+  top: var(--layers-inset);
+  bottom: var(--layers-inset);
+  left: var(--layers-inset);
+  display: flex;
+  flex-direction: column;
+  width: var(--layers-width);
+}
+
+.layer {
+  --layer-collapsed: var(--layer-head);
+  --layer-bg: var(--panel-bg);
+  --layer-fg: var(--panel-fg);
+  --layer-line: color-mix(in srgb, var(--layer-fg) var(--divider-strength), transparent); /* разделители внутри */
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 var(--layer-collapsed);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--layer-radius);
+  /* все панели полупрозрачные — сквозь них видно сцену */
+  background-color: color-mix(in srgb, var(--layer-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  color: var(--layer-fg);
+  transition: flex-grow var(--layer-duration) var(--layer-easing);
+}
+
+/* Лёгкая рамка поверх содержимого: не сдвигает вёрстку и не перекрывается строками */
+.layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--layer-fg) var(--layer-border-strength), transparent);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Operations и Inspector — светлый цвет панелей (по умолчанию у .layer).
+   Operations свёрнутая — шапка + текущая операция */
+.layer--operations {
+  --layer-collapsed: calc(var(--layer-head) + var(--current-height));
+}
+
+.layer--chat {
+  --layer-bg: var(--chat-bg);
+  --layer-fg: var(--chat-fg);
+}
+
+/* Ручка высоты — зазор между панелями. Активна только между деревом и открытой панелью */
+
+.layers__split {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  height: var(--layers-gap);
+}
+
+.layers__split::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: var(--layer-radius);
+  transition: background-color 0.15s ease;
+}
+
+.layers__split.is-active {
+  cursor: row-resize;
+  touch-action: none;
+}
+
+/* зона захвата шире видимой линии */
+.layers__split.is-active::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+
+.layers__split.is-active:hover::before {
+  background: color-mix(in srgb, var(--view-fg) 25%, transparent);
+}
+
+.layers__split:focus-visible {
+  outline: none;
+}
+
+.layers__split.is-active:focus-visible::before,
+.is-splitting .layers__split.is-active::before {
+  background: var(--view-fg);
+}
+
+/* Пока тянем — без анимации, курсор везде row-resize, текст не выделяется */
+.is-splitting .layer {
+  transition: none;
+}
+
+.is-splitting,
+.is-splitting * {
+  cursor: row-resize !important;
+  user-select: none;
+}
+
+.layer__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--layer-padding-x) var(--layer-padding-x);
+}
+
+/* Inspector — примерка инспектора ENCY: рейка вкладок слева, строки «подпись | контрол» справа */
+
+.insp-body {
+  padding: 0;
+  overflow: hidden;
+}
+
+.insp {
+  position: relative;
+  display: flex;
+  height: 100%;
+}
+
+/* Вертикальная линия между рейкой вкладок и параметрами — поверх строк и подсветки */
+.insp::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: var(--layer-head);
+  width: 1px;
+  background: var(--layer-line);
+  pointer-events: none;
+}
+
+/* В инспекторе — в зазоре между подписями и контролами, ниже заголовка вкладки */
+.insp-split {
+  top: var(--tree-row);
+  bottom: 0;
+  left: calc(var(--layer-head) + var(--insp-label));
+}
+
+.insp-empty {
+  padding: 4px var(--layer-padding-x);
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0.5;
+}
+
+/* Рейка — колонка вплотную к краю, вкладки занимают зону целиком */
+.insp__rail {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  width: var(--layer-head);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.insp__tab {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--layer-head);
+  height: var(--layer-head);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.insp__tab:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.insp__tab[aria-selected="true"] {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.insp__tab:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.insp__tab svg {
+  width: 20px;
+  height: 20px;
+}
+
+.insp__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+.insp__title {
+  display: flex;
+  align-items: center;
+  height: var(--tree-row);
+  padding: 0 var(--layer-padding-x);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.irow {
+  display: grid;
+  grid-template-columns: var(--insp-label) minmax(0, 1fr);
+  column-gap: 8px; /* в этом зазоре стоит разделитель .insp-split */
+  align-items: center;
+  min-height: var(--tree-row);
+  padding-right: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.irow:hover,
+.irow:focus-within {
+  background: color-mix(in srgb, currentColor 4%, transparent);
+}
+
+.irow__label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-left: calc(var(--layer-padding-x) + var(--indent, 0) * var(--tree-indent));
+  font-size: 13px;
+}
+
+.irow__text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Заголовок группы на всю строку, треугольник как в дереве */
+.irow--head {
+  grid-template-columns: 1fr;
+}
+
+/* Треугольник на уровне подписей, текст — вровень со строками группы (отступ 16px) */
+.irow__head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  height: var(--tree-row);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.irow__head:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.irow__chev {
+  display: flex;
+  align-items: center;
+  width: 12px;
+}
+
+.irow__chev::before {
+  content: "";
+  border-left: 5px solid currentColor;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.irow__head[aria-expanded="true"] .irow__chev::before {
+  transform: rotate(90deg);
+}
+
+.irow-divider {
+  height: 1px;
+  margin: 4px var(--layer-padding-x);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.irow__ctl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Контролы: 20px, плоские, заливка тоном текста */
+.ictl-input,
+.ictl-select {
+  width: 100%;
+  min-width: 0;
+  height: 20px;
+  padding: 0 6px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+  transition: background-color 0.15s ease;
+}
+
+.ictl-input:hover,
+.ictl-select:hover {
+  background: color-mix(in srgb, currentColor 11%, transparent);
+}
+
+.ictl-input:focus-visible,
+.ictl-select:focus-visible {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.ictl-input {
+  flex: 1;
+}
+
+.ictl-dropdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.ictl-select {
+  appearance: none;
+  padding-right: 20px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+
+.ictl-select option {
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+}
+
+/* Шеврон выпадающего списка */
+.ictl-dropdown::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 4px;
+  height: 4px;
+  border-right: 1.25px solid currentColor;
+  border-bottom: 1.25px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.ictl-readonly {
+  padding: 0 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Тогл 24×14: выключен — тон текста, включён — акцент темы */
+.ictl-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 7px;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ictl-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--panel-bg);
+  transition: transform 0.15s ease;
+}
+
+.ictl-switch[aria-checked="true"] {
+  background: var(--accent);
+}
+
+.ictl-switch[aria-checked="true"]::after {
+  transform: translateX(10px);
+}
+
+.ictl-switch:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Chat — переписка с ИИ-ассистентом */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  --chat-muted: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.chat__messages {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px var(--layer-padding-x) 16px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+.chat__empty {
+  margin-top: auto; /* пустое состояние прижато к полю ввода */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat__hint {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--chat-muted);
+}
+
+.chat__suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.chat__suggestion {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.chat__suggestion:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.chat__suggestion:active {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.chat__suggestion:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.chat__message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.chat__message--user {
+  align-items: flex-end;
+}
+
+.chat__message--user .chat__text {
+  max-width: 85%;
+  padding: 6px 10px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.chat__author {
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chat-muted);
+}
+
+.chat__text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Пока ассистент думает и печатает — мигающий блочный курсор */
+.chat__message.is-streaming .chat__text::after {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: currentColor;
+  animation: chat-caret 1s steps(1) infinite;
+}
+
+@keyframes chat-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Поле ввода: чипы контекста · строка ввода (+ · текст · Stop · голос) · строка режима и модели.
+   Как везде в панелях: кнопки — зоны во всю высоту строки, без отступов до краёв, строки разделены линиями */
+.chat__composer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 1px 0 var(--layer-line);
+}
+
+/* Строка чипов — такая же строка, как остальные: 32px (чип 24 + по 4 сверху и снизу), линия снизу */
+.chat__context {
+  padding: 4px;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+/* Контекст сообщения: чипы выбранного — операции, грани */
+
+.chat__context,
+.chat__message-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+
+.chat__message-context {
+  justify-content: flex-end;
+  max-width: 85%;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 24px;
+  padding: 0 2px 0 8px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.chip--static {
+  padding-right: 8px;
+}
+
+.chip__kind {
+  flex-shrink: 0;
+  color: color-mix(in srgb, currentColor 55%, transparent);
+}
+
+.chip__name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chip__remove {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.chip__remove:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.chip__remove:focus-visible {
+  opacity: 1;
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.chip__remove svg {
+  width: 8px;
+  height: 8px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+}
+
+.chat__box {
+  display: flex;
+  align-items: flex-end; /* кнопки остаются внизу, когда поле растёт */
+  min-height: 32px;
+  transition: background-color 0.15s ease;
+}
+
+.chat__box:focus-within {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.chat__input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  max-height: 160px;
+  padding: 7px 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  resize: none;
+  outline: none;
+}
+
+.chat__input::placeholder {
+  color: inherit;
+  opacity: 0.5;
+}
+
+/* Кнопки в поле — зоны 32×32: +, Stop, голос */
+.chat__icon-btn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.chat__icon-btn:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.chat__icon-btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.chat__icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+
+.chat__icon-btn:hover svg {
+  opacity: 1;
+}
+
+.chat__stop svg {
+  fill: currentColor;
+  stroke: none;
+  opacity: 1;
+}
+
+.chat__mic svg {
+  stroke-width: 1.25;
+}
+
+/* Идёт запись голоса — микрофон акцентом и пульсирует */
+.chat__mic.is-recording {
+  color: var(--accent);
+}
+
+.chat__mic.is-recording svg {
+  opacity: 1;
+  animation: chat-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes chat-pulse {
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Режим слева, модель справа, индикатор ответа в конце */
+.chat__meta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  box-shadow: inset 0 1px 0 var(--layer-line);
+}
+
+.chat__picker {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 12px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+/* приглушён текст, а не кнопка — иначе бледнел бы и разделитель */
+.chat__picker-value {
+  opacity: 0.8;
+}
+
+.chat__picker:hover,
+.chat__picker[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.chat__picker:hover .chat__picker-value,
+.chat__picker[aria-expanded="true"] .chat__picker-value {
+  opacity: 1;
+}
+
+.chat__picker:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Режим — зона у левого края, модель — у правого; разделители со стороны середины */
+.chat__picker[data-picker="mode"] {
+  box-shadow: inset -1px 0 0 var(--layer-line);
+}
+
+.chat__picker[data-picker="model"] {
+  box-shadow: inset 1px 0 0 var(--layer-line);
+}
+
+.chat__picker-extra {
+  opacity: 0.5;
+}
+
+.chat__picker-chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+}
+
+/* Подсказки (очередь, голос) — посередине строки */
+.chat__note {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+/* Индикатор ответа — тонкое кольцо */
+.chat__spinner {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin: 0 9px;
+  border: 1.5px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: chat-spin 0.8s linear infinite;
+}
+
+@keyframes chat-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Меню режима и модели — открываются вверх над строкой */
+.chat__menu {
+  position: absolute;
+  z-index: 2;
+  bottom: calc(100% + 4px);
+  margin: 0 4px;
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  padding: 4px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, var(--layer-bg) 90%, var(--layer-fg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--layer-fg) var(--layer-border-strength), transparent);
+}
+
+.chat__menu--mode {
+  left: 0;
+}
+
+.chat__menu--model {
+  right: 0;
+}
+
+.chat__menu-label {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.chat__menu-item {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  align-items: center;
+  column-gap: 6px;
+  min-height: 28px;
+  padding: 4px 8px 4px 4px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat__menu-item:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.chat__menu-item:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Галочка у выбранного пункта */
+.chat__menu-check {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+.chat__menu-item[aria-checked="true"] .chat__menu-check {
+  visibility: visible;
+}
+
+.chat__menu-hint {
+  grid-column: 2;
+  font-size: 11px;
+  opacity: 0.55;
+}
+
+.chat__menu-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--layer-line);
+}
+
+/* Сообщение в очереди — пока ассистент отвечает на предыдущее */
+.chat__message.is-queued .chat__text {
+  opacity: 0.55;
+}
+
+.chat__queued {
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+/* Панели на 3D-виде (из ENCY): та же поверхность, что у панелей колонки.
+   Свободная часть сцены начинается правее колонки на обычный зазор 4px: отступ + колонка + зазор.
+   Линия ручки ширины колонки стоит посередине этого зазора */
+
+.workspace {
+  --free-left: calc(var(--layers-inset) + var(--layers-width) + var(--layers-gap));
+  --free-right: 0px; /* правый док занят — docking.js ставит его ширину с зазорами */
+  --filters-width: 32px; /* колонка фильтров в левом верхнем углу свободной части */
+}
+
+.float-panel {
+  --layer-line: color-mix(in srgb, var(--panel-fg) var(--divider-strength), transparent);
+
+  position: absolute;
+  border-radius: var(--layer-radius);
+  background-color: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  background-image: var(--plastic-grain);
+  background-size: 160px 160px;
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+}
+
+/* Фильтры — вертикальная панель в один столбец (как вкладки инспектора): в левом верхнем углу
+   свободной части сцены. Заголовок-шеврон сворачивает
+   панель; ячейки — зоны 32×32 без зазоров: модель | станок | что выбирать, группы разделены линией */
+
+.filters {
+  --fn-accent: currentColor; /* иконки монохромные */
+
+  z-index: 5;
+  top: var(--layers-inset);
+  left: var(--free-left);
+  width: var(--filters-width);
+  max-height: calc(100% - var(--layers-inset) * 2);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.filters__head {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.filters__head:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.filters__head:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.filters.is-open .filters__head {
+  border-radius: 0;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.filters__chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+.filters.is-open .filters__chev {
+  transform: rotate(180deg);
+}
+
+/* Свёрнута — вместо шеврона иконка фильтров */
+/* Тонкий контур с едва заметной заливкой — как у ENCY st-funnel */
+.filters__icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  fill-opacity: 0.06;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.filters:not(.is-open) .filters__chev,
+.filters.is-open .filters__icon {
+  display: none;
+}
+
+.filters__body {
+  display: none;
+}
+
+.filters.is-open .filters__body {
+  display: block;
+}
+
+.filters__cols,
+.filters__col,
+.filters__grid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* линия между группой модели и группой станка — отдельной полосой, подсветка ячейки её не перекрывает */
+.filters__col + .filters__col::before {
+  content: "";
+  height: 1px;
+  background: var(--layer-line);
+}
+
+.filters__line {
+  height: 1px;
+  background: var(--layer-line);
+}
+
+/* Фильтр: выключен — иконка приглушена, включён — тон и иконка в полную силу */
+.filter-cell {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.filter-cell svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.35;
+  transition: opacity 0.15s ease;
+}
+
+.filter-cell:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.filter-cell[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.filter-cell[aria-pressed="true"]:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.filter-cell[aria-pressed="true"] svg,
+.filter-cell:hover svg {
+  opacity: 1;
+}
+
+.filter-cell:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Функции — панель по центру свободной части сцены. По умолчанию спрятана под header: торчит
+   край в 3px, при наведении выезжает; скрепка закрепляет её открытой. Кнопки — зоны 32×32, группы разделены линией на всю высоту.
+   Иконки — в языке вкладок инспектора; включённый переключатель (Smart snap) — тон и акцент темы */
+
+.fnbar {
+  --fnbar-hidden: calc(-100% - var(--layers-inset) + 3px);
+
+  z-index: 6;
+  top: var(--layers-inset);
+  /* по центру между фильтрами и правой границей — доком или краем окна */
+  left: calc((var(--free-left) + var(--filters-width) + var(--layers-gap) + 100% - max(var(--free-right), var(--layers-inset))) / 2);
+  display: flex;
+  width: max-content; /* по содержимому: иначе у края окна сжимается и её ширину не измерить (view-panels.js, «⋯») */
+  height: 32px;
+  transform: translate(-50%, var(--fnbar-hidden));
+  transition: transform 0.2s ease 0.4s; /* прячется не сразу — можно увести курсор и вернуться */
+}
+
+/* Выдвинута: наведение (вместе с зоной под краем), фокус, открытое меню Tools или скрепка */
+.fnbar:hover,
+.fnbar:focus-within,
+.fnbar.is-held,
+.fnbar.is-pinned {
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+
+/* Зона наведения под краем: когда панель спрятана, это верхние ~15px сцены над ней */
+.fnbar::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: -16px;
+  right: -16px;
+  height: 12px;
+}
+
+/* Скрепка: не закреплена — повёрнута и светлее, закреплена — прямо, в полную силу */
+.fnbar__pin .fnbar__icon {
+  transform: rotate(45deg);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.fnbar__pin[aria-pressed="true"] .fnbar__icon {
+  transform: none;
+  opacity: 1;
+}
+
+.fnbar__sep {
+  flex-shrink: 0;
+  width: 1px;
+  background: var(--layer-line);
+}
+
+.fnbar__btn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.fnbar__btn:hover,
+.fnbar__btn[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.fnbar__btn:active {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.fnbar__btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* включённый переключатель (Smart snap) — тон и иконка акцентом темы */
+.fnbar__btn[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.fnbar__btn[aria-pressed="true"] .fnbar__icon {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* Иконки в языке вкладок инспектора (Core icn_inspector): 20px, двухтоновые заливки */
+.fnbar__icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+.fnbar__btn:hover .fnbar__icon,
+.fnbar__btn:focus-visible .fnbar__icon,
+.fnbar__btn[aria-expanded="true"] .fnbar__icon {
+  opacity: 1;
+}
+
+/* Подсказка как в ENCY: название, линия, что делает */
+.fnbar__tip {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 4px);
+  width: max-content;
+  max-width: 280px;
+  padding: 6px 8px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  pointer-events: none;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.fnbar__tip b {
+  display: block;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  font-weight: 600;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.fnbar__tip span {
+  display: block;
+  opacity: 0.6;
+}
+
+/* Меню Tools — под кнопкой */
+.fnbar__menu {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 4px);
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  padding: 4px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+}
+
+.fnbar__menu-item {
+  display: flex;
+  align-items: center;
+  height: var(--tree-row);
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fnbar__menu-item:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.fnbar__menu-item:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.fnbar__menu-line {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--layer-line);
+}
+
+/* Список «⋯» — кнопки, которым не хватило места: иконка и название; у Tools — заголовок и пункты */
+.fnbar__menu .fnbar__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.fnbar__menu-item:has(.fnbar__icon),
+.fnbar__menu-head {
+  gap: 8px;
+}
+
+.fnbar__menu-head {
+  display: flex;
+  align-items: center;
+  height: var(--tree-row);
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+.fnbar__menu-head span {
+  opacity: 0.6;
+}
+
+/* пункты Tools — под его названием, после места иконки */
+.fnbar__menu-item--sub {
+  padding-left: 32px;
+}
+
+/* включённый Smart snap — иконка акцентом, как на кнопке */
+.fnbar__menu-item[aria-checked="true"] .fnbar__icon {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* Ручка ширины колонки — линия в зазоре справа от колонки */
+
+.layers-resizer {
+  position: absolute;
+  top: var(--layers-inset);
+  bottom: var(--layers-inset);
+  left: calc(var(--layers-inset) + var(--layers-width));
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.layers-resizer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 1px;
+  width: 2px;
+  border-radius: var(--layer-radius);
+  transition: background-color 0.15s ease;
+}
+
+.layers-resizer:hover::before {
+  background: color-mix(in srgb, var(--view-fg) 25%, transparent);
+}
+
+.layers-resizer:focus-visible {
+  outline: none;
+}
+
+.layers-resizer:focus-visible::before,
+.is-resizing .layers-resizer::before {
+  background: var(--view-fg);
+}
+
+/* Пока тянем — курсор везде col-resize и текст не выделяется */
+.is-resizing,
+.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* Inspector и Chat отрываются от колонки (docking.js): тянешь за шапку — плавающая панель,
+   у левой колонки или правого края — встаёт в колонку или в правый док */
+
+/* Грип в шапке — подсказка, что панель можно тянуть. Виден при наведении и у плавающей */
+.layer__grip {
+  flex-shrink: 0;
+  width: 8px;
+  height: 12px;
+  margin-left: auto;
+  background: radial-gradient(circle, currentColor 0.9px, transparent 1.2px) 0 0 / 4px 4px;
+  opacity: 0;
+  cursor: grab;
+  transition: opacity 0.15s ease;
+}
+
+.layer__header:hover .layer__grip,
+.layer__header:focus-visible .layer__grip,
+.layer.is-floating .layer__grip {
+  opacity: 0.4;
+}
+
+/* Плавающая панель: место и размер — inline из docking.js. Свёрнутая — одна шапка */
+.layer.is-floating {
+  position: absolute;
+  z-index: 7;
+  transition: height var(--layer-duration) var(--layer-easing), opacity 0.15s ease;
+}
+
+.layer.is-floating.is-front {
+  z-index: 8;
+}
+
+.layer.is-floating.is-shaded {
+  height: var(--layer-head) !important;
+}
+
+.layer.is-dragging,
+.layer.is-sizing,
+.is-still .layer {
+  transition: none !important;
+}
+
+/* Над колонкой или доком панель бледнеет — видно рамку места, куда она встанет */
+.layer.is-dragging.is-over-dock {
+  opacity: 0.6;
+}
+
+/* Края плавающей панели — тянуть, чтобы изменить размер. Невидимые, только курсор */
+.float-edge {
+  position: absolute;
+  z-index: 4;
+  display: none;
+  touch-action: none;
+}
+
+.layer.is-floating > .float-edge {
+  display: block;
+}
+
+.layer.is-floating.is-shaded > .float-edge:not(.float-edge--e, .float-edge--w) {
+  display: none;
+}
+
+.float-edge--n,
+.float-edge--s {
+  left: 8px;
+  right: 8px;
+  height: 4px;
+  cursor: ns-resize;
+}
+
+.float-edge--e,
+.float-edge--w {
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  cursor: ew-resize;
+}
+
+.float-edge--n { top: 0; }
+.float-edge--s { bottom: 0; }
+.float-edge--e { right: 0; }
+.float-edge--w { left: 0; }
+
+.float-edge--ne,
+.float-edge--nw,
+.float-edge--se,
+.float-edge--sw {
+  width: 8px;
+  height: 8px;
+}
+
+.float-edge--ne { top: 0; right: 0; cursor: nesw-resize; }
+.float-edge--sw { bottom: 0; left: 0; cursor: nesw-resize; }
+.float-edge--nw { top: 0; left: 0; cursor: nwse-resize; }
+.float-edge--se { bottom: 0; right: 0; cursor: nwse-resize; }
+
+/* Правый док — зеркало колонки: те же отступы, панели сверху вниз, ручка ширины слева */
+.dock {
+  position: absolute;
+  top: var(--layers-inset);
+  bottom: var(--layers-inset);
+  right: var(--layers-inset);
+  display: flex;
+  flex-direction: column;
+  width: var(--dock-width);
+  pointer-events: none; /* пустое место дока (под свёрнутыми шапками) — сцене */
+}
+
+.dock > * {
+  pointer-events: auto;
+}
+
+/* Все панели дока свёрнуты — шапки по содержимому (название и грип), по правому краю (docking.js) */
+.dock.is-collapsed {
+  width: max-content;
+  align-items: flex-end;
+}
+
+.dock.is-collapsed > .layer {
+  width: max-content;
+}
+
+.dock.is-collapsed .layer__grip {
+  margin-left: 24px;
+  opacity: 0.4;
+}
+
+.dock-resizer {
+  left: auto;
+  right: calc(var(--layers-inset) + var(--dock-width));
+}
+
+.dock-resizer::before {
+  left: auto;
+  right: 1px;
+}
+
+/* Рамка места, куда встанет панель */
+.dock-hint {
+  position: absolute;
+  z-index: 7;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, var(--view-fg) 6%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--view-fg) 40%, transparent);
+  pointer-events: none;
+}
+
+/* Пока тянем панель или её край — курсор жеста везде, текст не выделяется */
+.is-docking,
+.is-docking * {
+  cursor: var(--drag-cursor, grabbing) !important;
+  user-select: none;
+}
+
+/* Шапка первой панели: слева вид — сплит, как «+ ▾»: название и ▾ — отдельные зоны на всю высоту,
+   линия справа (model.js). Дальше пустое место до действий */
+
+.layer__view {
+  flex-shrink: 0;
+  display: flex;
+  box-shadow: inset -1px 0 0 var(--layer-line);
+}
+
+.layer__view-title,
+.layer__view-more {
+  display: flex;
+  align-items: center;
+  height: var(--layer-head);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  user-select: none; /* двойной клик не выделяет название */
+  transition: background-color 0.15s ease;
+}
+
+.layer__view-title {
+  padding: 0 8px 0 var(--layer-padding-x);
+}
+
+/* ▾ — строго по центру своей зоны, как у «+ ▾» */
+.layer__view-more {
+  justify-content: center;
+  width: 24px;
+  padding: 0;
+}
+
+.layer__view-title:hover,
+.layer__view-more:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.layer__view-title:active,
+.layer__view-more:active,
+.layer__view-more[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.layer__view-title:focus-visible,
+.layer__view-more:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.layer__bar-fill {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Названия видов — в одной ячейке сетки: ширина по самому длинному, видно текущее.
+   Короткое название прижато влево, как заголовки других панелей (кнопка по умолчанию центрирует) */
+.layer__view-names {
+  display: grid;
+  text-align: left;
+}
+
+.layer__view-names > span {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.layer__view-names > span.is-current {
+  visibility: visible;
+}
+
+.layer__view-chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.6;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.15s ease;
+}
+
+.layer__view-more[aria-expanded="true"] .layer__view-chev {
+  transform: rotate(180deg);
+}
+
+/* Список видов — под шапкой слева, как меню Add operation справа */
+.viewmenu {
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--layer-head) + var(--layers-gap));
+  left: 0;
+  width: 200px;
+  padding: 4px;
+  border-radius: var(--layer-radius);
+  background-color: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+}
+
+.viewmenu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: var(--tree-row);
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.viewmenu__item:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.viewmenu__item:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+/* Текущий вид — лёгкая подложка, без галочки */
+.viewmenu__item[aria-selected="true"] {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* Виды: дерево операций с действиями и поиском, дерево модели или симуляция */
+.model-tree,
+.sim {
+  display: none;
+}
+
+.layer--operations[data-view="model"] .model-tree {
+  display: block;
+}
+
+.layer--operations[data-view="simulation"].is-expanded .sim {
+  display: flex;
+}
+
+/* id — отдельно: внутри :is() он поднял бы специфичность всего правила и перебил ряд поиска симуляции */
+.layer--operations:not([data-view="operations"]) :is(.bar-actions--ops, .tree-tools:not(.sim-search), .tree-split),
+.layer--operations:not([data-view="operations"]) #operations-tree {
+  display: none;
+}
+
+/* Import ▾ — в шапке только у модели, на месте действий дерева операций */
+.bar-actions--model {
+  display: none;
+}
+
+.layer--operations[data-view="model"] .bar-actions--model {
+  display: flex;
+}
+
+.bar-btn--import {
+  padding: 0 12px;
+}
+
+/* Пустое состояние панели — как в Inspector */
+.layer-empty {
+  padding: 8px var(--layer-padding-x);
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0.5;
+}
+
+/* Панель над деревом модели (как в ENCY): зоны-кнопки слева; только в виде Model. Import — в шапке */
+.model-tools {
+  flex-shrink: 0;
+  display: none;
+  height: var(--tree-tools-height);
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.layer--operations[data-view="model"] .model-tools {
+  display: flex;
+}
+
+/* Иконки — залитые, два тона (как в полосе функций), а не штрих, как у кнопок дерева операций */
+.tool-btn .model-tools__icon {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Строка дерева модели: треугольник · галочка видимости · иконка · название */
+.model-check {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  padding: 0;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 45%, transparent);
+  color: inherit;
+  cursor: pointer;
+}
+
+.model-check svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--panel-bg);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+/* Отмечена — акцент темы, как включённые переключатели */
+.model-check[aria-checked="true"] {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.model-check[aria-checked="true"] svg {
+  visibility: visible;
+}
+
+.model-check:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 1px;
+}
+
+.model-icon {
+  flex-shrink: 0;
+  display: grid;
+  margin-right: 6px;
+  opacity: 0.8;
+}
+
+.model-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== Симуляция (simulation.js) — перенос из ENCY UI ===== */
+
+/* Вид Simulation первой панели: компактное управление (транспорт — в шапке, охват и столкновения — над деревом),
+   дерево кода, строка «Program code» */
+
+/* Транспорт в шапке рядом с «Simulation ▾»: занимает всё место после вида, ползунок тянется */
+.bar-actions--sim {
+  display: none;
+}
+
+.layer--operations[data-view="simulation"] .bar-actions--sim {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+}
+
+.layer--operations[data-view="simulation"] .layer__bar-fill {
+  display: none;
+}
+
+@container (max-width: 360px) {
+  .bar-actions--sim .sim-speed--mini {
+    min-width: 32px;
+    margin: 0 8px;
+  }
+}
+.sim {
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+/* Поиск и свернуть/раскрыть — тот же ряд, что под шапкой Operations (там он прячется в других видах) */
+.layer--operations[data-view="simulation"] .tree-tools.sim-search {
+  display: flex;
+}
+
+.sim-dock {
+  flex-shrink: 0;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.sim-dock__row {
+  display: flex;
+  align-items: center;
+  height: var(--layer-head);
+}
+
+.sim-dock__row + .sim-dock__row {
+  box-shadow: inset 0 1px 0 var(--layer-line);
+}
+
+/* Кнопки — зоны 32×32 без отступов, иконка 16px по центру */
+.sim-btn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--layer-head);
+  height: var(--layer-head);
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.sim-btn:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+.sim-btn:active,
+.sim-btn[aria-expanded="true"],
+.sim-btn[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.sim-btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.sim-btn:disabled {
+  opacity: 0.3;
+  background: transparent;
+  cursor: default;
+}
+
+.sim-btn[hidden] {
+  display: none;
+}
+
+.sim-btn svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.75;
+}
+
+.sim-btn:hover svg {
+  opacity: 1;
+}
+
+.sim-btn--error {
+  color: var(--status-error);
+}
+
+.sim-btn--warn {
+  color: var(--status-warn);
+}
+
+.sim-btn--error svg,
+.sim-btn--warn svg,
+.sim-btn--play svg {
+  opacity: 1;
+}
+
+/* Play — единственный акцент среди кнопок */
+.sim-btn--play {
+  color: var(--accent);
+}
+
+.sim-play__pause {
+  display: none;
+}
+
+:is(.sim, .simbar, .bar-actions--sim).is-playing .sim-btn--play .sim-play__play,
+.ncpanel.is-playing .sim-btn--play .sim-play__play {
+  display: none;
+}
+
+:is(.sim, .simbar, .bar-actions--sim).is-playing .sim-btn--play .sim-play__pause,
+.ncpanel.is-playing .sim-btn--play .sim-play__pause {
+  display: block;
+}
+
+/* Охват симуляции: выбранная часть программы — акцентом, остальное — цветом текста */
+.sim-btn--scope svg {
+  width: 20px;
+  height: 20px;
+  opacity: 1;
+}
+
+.sim-scope__on {
+  fill: var(--accent);
+}
+
+.sim-scope__on-line,
+.sim-scope__off-line {
+  stroke-width: 2;
+}
+
+.sim-scope__on-line {
+  stroke: var(--accent);
+}
+
+.sim-scope__off-line {
+  stroke: currentColor;
+  opacity: 0.5;
+}
+
+.sim-sep {
+  flex-shrink: 0;
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--layer-line);
+}
+
+.sim-spacer {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Ползунок скорости: дорожка, акцентная заливка, фиксаторы, ручка с кольцом цвета подложки.
+   Кольцо-призрак — своя скорость, пока сцена приближена (не выше 25%) */
+.sim-speed {
+  position: relative;
+  flex-shrink: 0;
+  height: var(--layer-head);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.sim-speed--mini {
+  flex: 1 1 auto;
+  min-width: 64px;
+  margin: 0 10px;
+}
+
+.sim-speed--wide {
+  width: 140px;
+  margin: 0 10px;
+}
+
+.sim-speed__track,
+.sim-speed__fill {
+  position: absolute;
+  left: 0;
+  top: 14px;
+  height: 4px;
+  border-radius: var(--layer-radius);
+}
+
+.sim-speed__track {
+  right: 0;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.sim-speed__fill {
+  background: var(--accent);
+}
+
+.sim-speed__dot {
+  position: absolute;
+  top: 15px;
+  width: 2px;
+  height: 2px;
+  margin-left: -1px;
+  border-radius: 50%;
+  background: var(--sim-hole);
+}
+
+.sim-speed__knob,
+.sim-speed__ghost {
+  position: absolute;
+  top: 10px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--sim-hole);
+}
+
+.sim-speed__knob {
+  background: currentColor;
+}
+
+.sim-speed__ghost {
+  box-sizing: border-box;
+  border: 2px solid color-mix(in srgb, currentColor 45%, transparent);
+  background: var(--sim-hole);
+}
+
+/* значение над ручкой — при наведении и пока тянут */
+.sim-speed__tip {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  padding: 2px 6px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+  font-size: 11px;
+  line-height: 14px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.sim-speed:hover .sim-speed__tip,
+.sim-speed.is-dragging .sim-speed__tip {
+  opacity: 1;
+}
+
+.sim-speed.is-capped .sim-speed__tip,
+.sim-speed-value.is-capped {
+  color: var(--status-warn);
+}
+
+.sim-speed-value {
+  flex-shrink: 0;
+  min-width: 36px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* Дерево кода: строки как в дереве операций — 24px, уровни через --level */
+.sim-tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+.sim-row {
+  display: flex;
+  align-items: center;
+  height: var(--tree-row);
+  padding: 0 var(--layer-padding-x) 0 calc(var(--layer-padding-x) + var(--level) * var(--tree-indent));
+  border-radius: var(--layer-radius);
+  font-size: 13px;
+  line-height: 1;
+  cursor: default;
+  user-select: none;
+}
+
+.sim-row:hover {
+  background: color-mix(in srgb, currentColor 6%, transparent);
+}
+
+/* строка под указателем времени — тон и акцентная черта слева */
+.sim-row.is-current {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.sim-row__toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: var(--tree-indent);
+  height: 100%;
+}
+
+.sim-row.is-branch > .sim-row__toggle {
+  cursor: pointer;
+}
+
+.sim-row.is-branch > .sim-row__toggle::before {
+  content: "";
+  border-left: 5px solid currentColor;
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+  transition: transform 0.15s ease;
+}
+
+.sim-row.is-open > .sim-row__toggle::before {
+  transform: rotate(90deg);
+}
+
+.sim-row__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.sim-row__tool {
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* справа — статус: ошибка, просимулировано (✓) или точка — ещё впереди; клик — окно блока */
+.sim-row__mark {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+}
+
+.sim-row--op .sim-row__mark,
+.sim-row--code .sim-row__mark,
+.sim-row--group .sim-row__mark {
+  cursor: pointer;
+}
+
+.sim-row__mark .status {
+  margin-left: 0;
+}
+
+.sim-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.sim-row:hover .sim-dot {
+  background: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+.sim-check {
+  display: grid;
+  opacity: 0.45;
+}
+
+.sim-check svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* код: тише текста; цвет — по движению, строки-заголовки движения — жирные */
+.sim-row--code {
+  font-size: 12px;
+}
+
+.sim-row--code .sim-row__label {
+  color: color-mix(in srgb, currentColor 80%, transparent);
+}
+
+.sim-row--rapid .sim-row__label { color: var(--motion-rapid); }
+.sim-row--approach .sim-row__label { color: var(--motion-approach); }
+.sim-row--feed .sim-row__label { color: var(--motion-feed); }
+.sim-row--work .sim-row__label { color: var(--motion-work); }
+
+.sim-row.is-head .sim-row__label {
+  font-weight: 600;
+}
+
+/* Широкая панель внизу сцены: строка управления и таймлайн. Прячется под нижний край,
+   как полоса функций под header; выезжает при наведении, фокусе, открытом окне, скрепке */
+.simbar {
+  --layer-line: color-mix(in srgb, var(--panel-fg) var(--divider-strength), transparent);
+
+  z-index: 6;
+  left: var(--free-left);
+  right: max(var(--free-right), var(--layers-inset));
+  bottom: var(--layers-inset);
+  display: flex;
+  flex-direction: column;
+  container-type: inline-size;
+  transform: translateY(calc(100% + var(--layers-inset) - 3px));
+  transition: transform 0.2s ease 0.4s;
+}
+
+.simbar[hidden] {
+  display: none;
+}
+
+.simbar:hover,
+.simbar:focus-within,
+.simbar.is-held,
+.simbar.is-pinned,
+.simbar.is-peek {
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* зона наведения над краем: когда панель спрятана, это нижние ~15px сцены */
+.simbar::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: -16px;
+  right: -16px;
+  height: 12px;
+}
+
+.simbar__row {
+  display: flex;
+  align-items: center;
+  height: var(--layer-head);
+  min-width: 0;
+}
+
+.simbar__badge,
+.simbar__stops {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--layer-head);
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.simbar__badge:hover,
+.simbar__stops:hover,
+.simbar__badge[aria-expanded="true"],
+.simbar__stops[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.simbar__badge[hidden] {
+  display: none;
+}
+
+/* счётчик столкновений — цвет ошибки; клик — список */
+.simbar__badge {
+  color: var(--status-error);
+  font-variant-numeric: tabular-nums;
+}
+
+.simbar__badge svg,
+.simbar__stops > svg:first-child {
+  width: 14px;
+  height: 14px;
+}
+
+.simbar__stops > svg:first-child {
+  opacity: 0.6;
+}
+
+.simbar__stops > svg:last-child {
+  width: 8px;
+  height: 5px;
+  opacity: 0.6;
+}
+
+.simbar__stops span {
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+/* текущая операция: название · T# акцентом · инструмент */
+.simbar__op {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.simbar__op b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}
+
+.simbar__op em {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.simbar__op span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.6;
+}
+
+.simbar__time {
+  flex-shrink: 0;
+  padding: 0 8px 0 12px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+/* Узкая панель отступает от второстепенного к главному: инструмент → текущая операция (она и так в дереве)
+   и подпись условий → охват, ползунок уже → «к началу» / «следующая», процент → время.
+   Воспроизведение, шаги и столкновения остаются всегда */
+@container (max-width: 1000px) {
+  .simbar__op span { display: none; }
+}
+
+@container (max-width: 900px) {
+  .simbar__op,
+  .simbar__stops span { display: none; }
+}
+
+@container (max-width: 780px) {
+  .simbar__row .sim-btn--scope,
+  .simbar__row .sim-btn--scope + .sim-sep { display: none; }
+  .sim-speed--wide { width: 90px; }
+}
+
+@container (max-width: 680px) {
+  .simbar__row .sim-btn--secondary,
+  .simbar__row .sim-speed-value { display: none; }
+}
+
+@container (max-width: 560px) {
+  .simbar__time { display: none; }
+}
+
+/* Таймлайн: станок (к началу), линейка, операции линиями, метки, указатель с временем */
+.simbar__timeline {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 2px 12px 8px 0;
+  box-shadow: inset 0 1px 0 var(--layer-line);
+}
+
+.sim-btn--anchor {
+  height: 24px;
+}
+
+.sim-btn--anchor svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sim-tl {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-tl__ruler {
+  position: relative;
+  height: 8px;
+}
+
+.sim-tl__ruler i {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 4px;
+  background: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+.sim-tl__track {
+  position: relative;
+  display: flex;
+  gap: 1px;
+  height: 20px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* операция — тонкая линия; впереди — серая, пройденная — плотнее, текущая — акцентом и толще */
+.sim-tl__clip {
+  position: relative;
+  min-width: 2px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.sim-tl__clip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  border-radius: 1px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  transform: translateY(-50%);
+  transition: height 0.1s ease;
+}
+
+.sim-tl__clip.is-done::before {
+  background: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.sim-tl__clip.is-current::before {
+  height: 7px;
+  background: var(--accent);
+}
+
+.sim-tl__clip:hover {
+  overflow: visible;
+  z-index: 3;
+}
+
+.sim-tl__clip:hover::before {
+  background: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+/* название операции — при наведении, на подложке, чтобы читалось поверх линии */
+.sim-tl__clip span {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  padding: 0 6px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sim-tl__clip:hover span {
+  opacity: 1;
+}
+
+.sim-tl__mark {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* столкновение — ромб ошибки; на длинных программах — засечка */
+.sim-tl__mark--coll {
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 1px;
+  background: var(--status-error);
+  box-shadow: 0 0 0 2px var(--sim-hole);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.sim-tl__mark--coll.is-tick {
+  width: 2px;
+  height: 14px;
+  margin-left: -1px;
+  transform: translateY(-50%);
+}
+
+.sim-tl__track.is-no-collisions .sim-tl__mark--coll {
+  display: none;
+}
+
+/* начало установа — вертикальная черта цветом текста */
+.sim-tl__mark--setup {
+  width: 2px;
+  height: 14px;
+  margin-left: -1px;
+  background: currentColor;
+  transform: translateY(-50%);
+}
+
+.sim-tl__playhead {
+  position: absolute;
+  top: -4px;
+  bottom: -2px;
+  z-index: 2;
+  width: 2px;
+  margin-left: -1px;
+  background: currentColor;
+  box-shadow: 1px 0 0 var(--sim-hole), -1px 0 0 var(--sim-hole);
+  pointer-events: none;
+}
+
+.sim-tl__playhead::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  border: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  transform: translateX(-50%);
+}
+
+.sim-tl__tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  padding: 1px 6px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  font-size: 11px;
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.sim-tl__track:hover .sim-tl__tip,
+.simbar__timeline.is-scrubbing .sim-tl__tip,
+.simbar.is-playing .sim-tl__tip {
+  opacity: 1;
+}
+
+/* указатель стоит на столкновении — линия и указатель цветом ошибки */
+.sim-tl__track.is-at-collision .sim-tl__clip::before {
+  background: color-mix(in srgb, var(--status-error) 40%, transparent);
+}
+
+.sim-tl__track.is-at-collision .sim-tl__clip.is-current::before {
+  background: var(--status-error);
+}
+
+.sim-tl__track.is-at-collision .sim-tl__playhead {
+  color: var(--status-error);
+}
+
+/* Окно NC-блока — справа от фильтров, на высоте строки */
+.ncpanel {
+  --layer-line: color-mix(in srgb, var(--panel-fg) var(--divider-strength), transparent);
+
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 328px;
+  padding: 12px;
+  font-size: 12px;
+}
+
+.ncpanel[hidden] {
+  display: none;
+}
+
+.nc__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nc__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ncpanel.has-error .nc__title {
+  color: var(--status-error);
+}
+
+.nc__close {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.nc__close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.nc__close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nc__sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nc__op {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+
+/* тип движения — плашка в его цвете */
+.nc__move {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  font-weight: 500;
+}
+
+.nc__move.sim-move--rapid { color: var(--motion-rapid); }
+.nc__move.sim-move--approach { color: var(--motion-approach); }
+.nc__move.sim-move--feed { color: var(--motion-feed); }
+.nc__move.sim-move--work { color: var(--motion-work); }
+
+.nc__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, var(--status-error) 10%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status-error) 30%, transparent);
+}
+
+.nc__error[hidden] {
+  display: none;
+}
+
+.nc__error .status {
+  margin-left: 0;
+}
+
+.nc__error > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.nc__error b {
+  color: var(--status-error);
+  font-weight: 500;
+}
+
+.nc__error > span:last-child > span {
+  opacity: 0.6;
+  font-size: 11px;
+}
+
+.nc__controls {
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 1px 0 var(--layer-line), inset 0 -1px 0 var(--layer-line);
+}
+
+.nc__controls .sim-speed--mini {
+  min-width: 56px;
+}
+
+.nc__section {
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.nc__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px 8px;
+}
+
+.nc__cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.nc__cell b {
+  min-width: 18px;
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+.nc__cell span {
+  flex: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* правка: ячейки с рамкой, в фокусе — акцентом */
+.ncpanel.is-editing .nc__cell {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.ncpanel.is-editing .nc__cell:focus-within {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.ncpanel.is-editing .nc__cell span {
+  outline: none;
+  cursor: text;
+}
+
+.nc__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nc__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nc__row svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+.nc__row span {
+  flex: 1;
+}
+
+.nc__row b {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Всплывающие окна симуляции: параметры, условия остановки, список столкновений */
+.simpop {
+  --layer-line: color-mix(in srgb, var(--panel-fg) var(--divider-strength), transparent);
+
+  position: fixed;
+  z-index: 30;
+  width: 280px;
+  max-height: calc(100vh - 16px);
+  overflow: auto;
+  padding: 12px;
+  border-radius: var(--layer-radius);
+  background: var(--panel-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+  font-size: 12px;
+  scrollbar-width: thin;
+}
+
+.simpop[hidden] {
+  display: none;
+}
+
+.simpop__title {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+}
+
+.simpop__line {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--layer-line);
+}
+
+.simpop__head-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  font-weight: 600;
+}
+
+.simpop__head-row span {
+  flex: 1;
+}
+
+.simpop__section {
+  margin: 6px 0 2px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.simpop__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.simpop__row.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.simpop__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.simpop__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+}
+
+.simpop__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.simpop__error-icon {
+  width: 16px !important;
+  height: 16px !important;
+  color: var(--status-error);
+}
+
+/* уровень проверки: три положения, подписи кликаются, под ними — описание */
+.simpop__levels {
+  display: flex;
+  justify-content: space-between;
+  margin: 2px 0 8px;
+}
+
+.simpop__levels button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.simpop__levels button.is-on {
+  opacity: 1;
+}
+
+.simpop__slider {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  margin: 0 6px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.simpop__slider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 6px;
+  height: 2px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.simpop__slider-fill {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.simpop__slider-knob {
+  position: absolute;
+  top: 1px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px var(--panel-bg);
+}
+
+.simpop__note {
+  margin: 8px 0 4px;
+  padding: 8px 10px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.simpop__note b {
+  display: block;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.simpop__note span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 15px;
+  opacity: 0.65;
+}
+
+.simpop__tolerance {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 2px;
+  font-size: 11px;
+}
+
+.simpop__tolerance > span {
+  opacity: 0.5;
+}
+
+.simpop__row--sub {
+  min-height: 24px;
+}
+
+.simpop__input {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.simpop__input input {
+  width: 44px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  text-align: right;
+}
+
+.simpop__input em {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+.simpop__input.is-off {
+  opacity: 0.5;
+}
+
+.simpop__value {
+  padding: 2px 6px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.simpop__value:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* список столкновений: ромб, тип и где — операция · инструмент · время */
+.simpop--collisions {
+  width: 240px;
+  padding: 8px;
+}
+
+.simpop--collisions .simpop__title {
+  padding: 0 4px 6px;
+  margin-bottom: 4px;
+}
+
+.simpop__list {
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.simpop__collision {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 4px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.simpop__collision:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.simpop__collision > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.simpop__collision b {
+  font-weight: 500;
+}
+
+.simpop__collision > span > span {
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  opacity: 0.6;
+}
+
+/* ===== Сортировка и связи подвода/отвода — в ряду поиска (tree-tools.js) ===== */
+
+/* Кнопки-зоны с меню в ряду поиска — после «свернуть / раскрыть»: иконка 20px и ▾, линия справа, как у неё */
+.tree-tools .tool-btn--menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: auto;
+  padding: 0 8px 0 6px;
+  box-shadow: inset -1px 0 0 var(--layer-line);
+}
+
+.tree-tools .tool-btn--menu .tool-btn__icon {
+  width: 20px;
+  height: 20px;
+  stroke: none;
+  opacity: 0.8;
+}
+
+.tree-tools .tool-btn--menu .tool-btn__chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+
+.tree-tools .tool-btn--menu:hover .tool-btn__icon,
+.tree-tools .tool-btn--menu[aria-expanded="true"] .tool-btn__icon,
+.tree-sort.is-active .tool-btn__icon {
+  opacity: 1;
+}
+
+.tree-tools .tool-btn--menu[aria-expanded="true"],
+.tree-sort.is-active {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+/* связь — акцентом, пока подвод/отвод считаются сами (Auto); вручную — цветом текста */
+.tree-links:not(.is-auto) .tree-links__arrow {
+  fill: currentColor;
+}
+
+.tree-links:not(.is-auto) .tree-links__curve {
+  stroke: currentColor;
+}
+
+/* Сортировка — показ по CSS order внутри установа, без перестановки строк */
+.tree.is-sorted .tree__group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Связи между соседними операциями — линия между их статусами (как в ENCY);
+   при сортировке не по программе соседи случайные — линий нет */
+.tree.is-linked:not(.is-sorted) .tree__item:not(.tree__item--branch) + .tree__item:not(.tree__item--branch) > .tree__row {
+  position: relative;
+}
+
+.tree.is-linked:not(.is-sorted) .tree__item:not(.tree__item--branch) + .tree__item:not(.tree__item--branch) > .tree__row::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: calc(var(--layer-padding-x) + 7.5px);
+  width: 1px;
+  height: 8px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+  pointer-events: none;
+}
+
+/* Список сортировки и связей — под кнопкой, как список видов */
+.treemenu {
+  position: fixed;
+  z-index: 30;
+  width: 220px;
+  padding: 4px;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, var(--panel-bg) var(--panel-opacity), transparent);
+  backdrop-filter: blur(var(--panel-blur));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--panel-fg) var(--layer-border-strength), transparent);
+  color: var(--panel-fg);
+}
+
+.treemenu__item .ictl-switch {
+  margin-left: 8px;
+  pointer-events: none;
+}
+
+.treemenu__icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-left: -4px;
+}
+
+.treemenu__line {
+  height: 1px;
+  margin: 4px 8px;
+  background: color-mix(in srgb, var(--panel-fg) var(--divider-strength), transparent);
+}
+
+/* Настройки шапки Operations: подпись раздела в списке; ряд под шапкой скрыт — разделитель столбиков выше */
+.treemenu__label {
+  padding: 4px 8px 6px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.treemenu__item[role="menuitemcheckbox"] .viewmenu__name {
+  flex: 1;
+}
+
+.layer--operations.is-tools-hidden .tree-split {
+  top: var(--layer-head);
+}
+
+.bar-btn--settings[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* Шестерёнка — первая зона шапки первой панели (до вида), линия справа. Зона на 1px шире —
+   линия встаёт сразу за 32px, на одной вертикали с линией листалки и рейки Inspector ниже */
+.layer__bar > .bar-btn--settings {
+  flex-shrink: 0;
+  width: calc(var(--layer-head) + 1px);
+  box-shadow: inset -1px 0 0 var(--layer-line);
+}
+
+/* «Свернуть / раскрыть» — первая в ряду поиска, так же */
+.tree-tools .tool-btn--fold {
+  width: calc(var(--tree-tools-height) + 1px);
+}

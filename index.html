@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Прототип</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    // Сохранённая тема — до первой отрисовки, чтобы не мигала тема по умолчанию
+    document.documentElement.dataset.theme = localStorage.getItem('prototype-theme') || 'stone';
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="header">
+    <!-- Логотип ENCY — открывает меню (как в ENCY) -->
+    <button class="logo" type="button" aria-label="Открыть меню" title="Menu" aria-expanded="false" aria-haspopup="menu" aria-controls="app-menu">
+      <svg class="logo__icon" viewBox="0 0 15 15" aria-hidden="true"><path d="M6.09375 13.5938H3.39844C2.29818 13.5938 1.40625 12.7018 1.40625 11.6016C1.40625 10.5013 2.29818 9.60938 3.39844 9.60938H6.09375C6.48208 9.60938 6.79688 9.29458 6.79688 8.90625C6.79688 8.51792 6.48208 8.20313 6.09375 8.20313H3.39844C1.52153 8.20313 0 9.72466 0 11.6016C0 13.4785 1.52153 15 3.39844 15H6.09375C6.48208 15 6.79688 14.6852 6.79688 14.2969C6.79688 13.9085 6.48208 13.5938 6.09375 13.5938Z"/><path d="M9.60937 6.09375L9.60937 3.39844C9.60937 2.29818 10.5013 1.40625 11.6016 1.40625C12.7018 1.40625 13.5937 2.29818 13.5937 3.39844L13.5937 6.09375C13.5937 6.48208 13.9085 6.79688 14.2969 6.79688C14.6852 6.79688 15 6.48208 15 6.09375L15 3.39844C15 1.52153 13.4785 8.20421e-08 11.6016 0C9.72466 -8.20421e-08 8.20312 1.52153 8.20312 3.39844L8.20312 6.09375C8.20312 6.48208 8.51792 6.79687 8.90625 6.79687C9.29457 6.79687 9.60937 6.48208 9.60937 6.09375Z"/><path d="M13.5938 8.90625L13.5938 11.6016C13.5938 12.7018 12.7018 13.5937 11.6016 13.5937L8.90625 13.5938C8.51792 13.5938 8.20312 13.9086 8.20312 14.2969C8.20312 14.6852 8.51792 15 8.90625 15L11.6016 15C13.4785 15 15 13.4785 15 11.6016L15 8.90625C15 8.51792 14.6852 8.20312 14.2969 8.20312C13.9086 8.20312 13.5938 8.51792 13.5938 8.90625Z"/><path d="M8.9064 8.20313C8.51799 8.20313 8.20312 8.51799 8.20312 8.9064C8.20312 9.1006 8.28184 9.27642 8.40911 9.40369L11.1041 12.0987C11.2314 12.226 11.4072 12.3047 11.6014 12.3047C11.9898 12.3047 12.3047 11.9898 12.3047 11.6014C12.3047 11.4072 12.226 11.2314 12.0987 11.1041L9.40369 8.40911C9.27642 8.28184 9.1006 8.20313 8.9064 8.20313Z"/><path d="M6.09375 5.39063H3.39844C2.29818 5.39063 1.40625 4.4987 1.40625 3.39844C1.40625 2.29819 2.29818 1.40625 3.39844 1.40625H5.09938L3.72071 2.78493C3.59346 2.91217 3.51476 3.08795 3.51476 3.28212C3.51476 3.67044 3.82956 3.98524 4.21789 3.98524C4.41205 3.98524 4.58783 3.90654 4.71507 3.7793L6.59093 1.90344C6.71818 1.7762 6.79688 1.60042 6.79688 1.40626V0.70313C6.79688 0.314805 6.48208 5.21907e-06 6.09375 5.21907e-06H3.39844C1.52153 5.21907e-06 0 1.52154 0 3.39844C0 5.27535 1.52153 6.79688 3.39844 6.79688H6.09375C6.48208 6.79688 6.79688 6.48208 6.79688 6.09375C6.79688 5.70543 6.48207 5.39063 6.09375 5.39063Z"/></svg>
+    </button>
+
+    <span class="header__divider" role="separator" aria-orientation="vertical"></span>
+
+    <!-- Как в ENCY: домой, утилиты, новый, открыть, сохранить — и вкладки открытых проектов -->
+    <div class="hgroup">
+      <button class="hbtn" type="button" data-header-action="home" title="Home" aria-label="Home"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M21.8536 14.8536L16.3536 9.35355C16.1583 9.15829 15.8417 9.15829 15.6464 9.35355L10.1464 14.8536C10.0527 14.9473 10 15.0745 10 15.2071V22.5C10 22.7761 10.2239 23 10.5 23H13.3889C13.665 23 13.8889 22.7761 13.8889 22.5V19.5C13.8889 19.2239 14.1127 19 14.3889 19H17.6111C17.8873 19 18.1111 19.2239 18.1111 19.5V22.5C18.1111 22.7761 18.335 23 18.6111 23H21.5C21.7761 23 22 22.7761 22 22.5V15.2071C22 15.0745 21.9473 14.9473 21.8536 14.8536Z" fill="currentColor"/></svg></button>
+      <button class="hbtn" type="button" data-header-action="utilities" title="Utilities" aria-label="Utilities"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="9" y="20" width="14" height="2" rx="0.5" fill="currentColor"/><rect x="9" y="15" width="14" height="2" rx="0.5" fill="currentColor"/><rect x="9" y="10" width="14" height="2" rx="0.5" fill="currentColor"/></svg></button>
+      <button class="hbtn" type="button" data-project-action="new" title="New project" aria-label="New project"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M10.7778 23H21.2222C21.6518 23 22 22.6418 22 22.2V15.5C22 15.2239 21.7761 15 21.5 15H16.5C16.2239 15 16 14.7761 16 14.5V9.5C16 9.22386 15.7761 9 15.5 9H10.7778C10.3482 9 10 9.35817 10 9.8V22.2C10 22.6418 10.3482 23 10.7778 23Z" fill="currentColor"/><path d="M17 13.5V10.2071C17 9.76165 17.5386 9.53857 17.8536 9.85355L21.1464 13.1464C21.4614 13.4614 21.2383 14 20.7929 14H17.5C17.2239 14 17 13.7761 17 13.5Z" fill="currentColor"/></g></svg></button>
+      <button class="hbtn" type="button" data-project-action="open" title="Open project" aria-label="Open project"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><g><g><path d="M16 11L15 10H22.5C22.7761 10 23 10.2239 23 10.5C23 10.7761 22.7761 11 22.5 11H16Z" fill="currentColor" fill-opacity="0.48"/><path d="M12.5859 10C12.8511 10 13.1055 10.1055 13.293 10.293L15 12H23C23.5523 12 24 12.4477 24 13V22C24 22.5523 23.5523 23 23 23H9C8.44772 23 8 22.5523 8 22V11C8 10.4477 8.44772 10 9 10H12.5859Z" fill="currentColor" fill-opacity="0.96"/></g></g></svg></button>
+      <button class="hbtn" type="button" data-project-action="save" title="Save (Ctrl+S)" aria-label="Save project"><svg class="hbtn__icon hbtn__icon--save" viewBox="0 0 14 14" fill="none" aria-hidden="true"><g><path d="M1.5 0C1.77614 0 2 0.223858 2 0.5V3.5C2 3.77614 2.22386 4 2.5 4H8.5C8.77614 4 9 3.77614 9 3.5V0.5C9 0.223858 9.22386 0 9.5 0H10.793C10.9255 1.99485e-05 11.0527 0.052734 11.1465 0.146484L13.8535 2.85352C13.9473 2.94727 14 3.07445 14 3.20703V13.5C14 13.7761 13.7761 14 13.5 14H12.5C12.2239 14 12 13.7761 12 13.5V7.5C12 7.22386 11.7761 7 11.5 7H2.5C2.22386 7 2 7.22386 2 7.5V13.5C2 13.7761 1.77614 14 1.5 14H0.5C0.223858 14 0 13.7761 0 13.5V0.5C0 0.223858 0.223858 0 0.5 0H1.5ZM10.5 8C10.7761 8 11 8.22386 11 8.5V13.5C11 13.7761 10.7761 14 10.5 14H3.5C3.22386 14 3 13.7761 3 13.5V8.5C3 8.22386 3.22386 8 3.5 8H10.5ZM4.5 12C4.22386 12 4 12.2239 4 12.5C4 12.7761 4.22386 13 4.5 13H9.5C9.77614 13 10 12.7761 10 12.5C10 12.2239 9.77614 12 9.5 12H4.5ZM4.5 10C4.22386 10 4 10.2239 4 10.5C4 10.7761 4.22386 11 4.5 11H9.5C9.77614 11 10 10.7761 10 10.5C10 10.2239 9.77614 10 9.5 10H4.5ZM7.5 0C7.77614 0 8 0.223858 8 0.5V2.5C8 2.77614 7.77614 3 7.5 3H3.5C3.22386 3 3 2.77614 3 2.5V0.5C3 0.223858 3.22386 0 3.5 0H7.5Z" fill="currentColor"/></g></svg></button>
+      <input class="project-file" type="file" hidden>
+    </div>
+
+    <span class="header__divider" role="separator" aria-orientation="vertical"></span>
+
+    <div class="ptabs" role="tablist" aria-label="Projects"></div>
+
+    <!-- Справа (как в ENCY): уведомления, ещё — и кнопки окна -->
+    <div class="hgroup hgroup--right">
+      <span class="header__divider" role="separator" aria-orientation="vertical"></span>
+      <button class="hbtn" type="button" data-header-action="notifications" title="Notifications" aria-label="Notifications"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M18.5 23C18.7761 23 19 23.2239 19 23.5C19 23.7761 18.7761 24 18.5 24H13.5C13.2239 24 13 23.7761 13 23.5C13 23.2239 13.2239 23 13.5 23H18.5ZM16 8C19.0376 8 21.5 10.4624 21.5 13.5V17.3975L22.96 20.8027C23.0262 20.9572 23.0095 21.1351 22.917 21.2754C22.8244 21.4155 22.668 21.5 22.5 21.5H9.5C9.33205 21.5 9.17555 21.4155 9.08301 21.2754C8.99049 21.1351 8.97383 20.9572 9.04004 20.8027L10.5 17.3975V13.5C10.5 10.4624 12.9624 8 16 8ZM16 9C13.5147 9 11.5 11.0147 11.5 13.5V17.6025L10.2578 20.5H21.7422L20.5 17.6025V13.5C20.5 11.0147 18.4853 9 16 9Z" fill="currentColor"/></svg></button>
+      <button class="hbtn" type="button" data-header-action="more" title="More" aria-label="More"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M10 13L16 19L22 13" stroke="currentColor" stroke-linejoin="round"/></svg></button>
+      <button class="hbtn" type="button" data-window-action="minimize" title="Minimize" aria-label="Minimize"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M22 16L10 16" stroke="currentColor" stroke-linejoin="round"/></svg></button>
+      <button class="hbtn" type="button" data-window-action="maximize" title="Maximize" aria-label="Maximize"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M22 19H20V21C20 21.5523 19.5523 22 19 22H11C10.4477 22 10 21.5523 10 21V13C10 12.4477 10.4477 12 11 12H13V10H21C21.5523 10 22 10.4477 22 11V19H14C13.4477 19 13 18.5523 13 18V10" stroke="currentColor" stroke-linejoin="round"/></svg></button>
+      <button class="hbtn" type="button" data-window-action="close" title="Close" aria-label="Close"><svg class="hbtn__icon" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M10 10L22 22M22 10L10 22" stroke="currentColor" stroke-linejoin="round"/></svg></button>
+    </div>
+
+    <!-- Меню логотипа: выбор темы -->
+    <div class="menu" id="app-menu" role="menu" aria-label="Меню" hidden>
+      <div class="menu__label" id="menu-theme-label">Theme</div>
+      <div role="group" aria-labelledby="menu-theme-label">
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="rams">
+          <span class="menu__swatches" data-theme="rams" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Rams
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="rams-dark">
+          <span class="menu__swatches" data-theme="rams-dark" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Rams Dark
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="stone">
+          <span class="menu__swatches" data-theme="stone" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Stone
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="stone-dark">
+          <span class="menu__swatches" data-theme="stone-dark" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Stone Dark
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="sage">
+          <span class="menu__swatches" data-theme="sage" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Sage
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="sage-dark">
+          <span class="menu__swatches" data-theme="sage-dark" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Sage Dark
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="mist">
+          <span class="menu__swatches" data-theme="mist" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Mist
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="mist-dark">
+          <span class="menu__swatches" data-theme="mist-dark" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Mist Dark
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- View: 3D-сцена на весь фон -->
+    <section class="view">
+      <canvas class="view__canvas"></canvas>
+    </section>
+
+    <!-- Панели сцены (из ENCY) в левом верхнем углу свободной части: полоса функций, под ней панель фильтров.
+         Низ сцены — под кубик вида и панель симуляции.
+         Header не трогаем — там будут открытие/сохранение проектов и вкладки проектов -->
+    <div class="fnbar float-panel" id="fnbar" role="toolbar" aria-label="Functions"></div>
+    <div class="filters float-panel is-open" id="filters" aria-label="Filters"></div>
+
+    <!-- Колонка панелей поверх view: сверху дерево Operations, ниже слот для Inspector или Chat.
+         Между открытыми панелями — ручка высоты (.layers__split) -->
+    <div class="layers">
+      <section class="layer layer--operations plastic">
+        <!-- Шапка: слева вид панели (Model / Operations / Simulation) — сплит, как «+ ▾»: клик по названию сразу
+             переключает на следующий вид, в Operations двойной клик — дерево ↔ одна операция; ▾ — список видов (model.js).
+             Справа главные действия -->
+        <div class="layer__bar">
+          <!-- Настройки показа — самой левой, во всех видах; список — свой у вида (tree-tools.js) -->
+          <button class="bar-btn bar-btn--settings" type="button" title="Display settings" aria-label="Display settings" aria-haspopup="menu" aria-expanded="false">
+            <svg class="bar-btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M6.70 2.76L6.79 0.70L9.21 0.70L9.30 2.76L10.79 3.37L12.30 1.98L14.02 3.70L12.63 5.21L13.24 6.70L15.30 6.79L15.30 9.21L13.24 9.30L12.63 10.79L14.02 12.30L12.30 14.02L10.79 12.63L9.30 13.24L9.21 15.30L6.79 15.30L6.70 13.24L5.21 12.63L3.70 14.02L1.98 12.30L3.37 10.79L2.76 9.30L0.70 9.21L0.70 6.79L2.76 6.70L3.37 5.21L1.98 3.70L3.70 1.98L5.21 3.37Z M10.60 8A2.6 2.6 0 1 0 5.40 8A2.6 2.6 0 1 0 10.60 8Z"/></svg>
+          </button>
+          <div class="layer__view">
+            <button class="layer__view-title" type="button">
+              <!-- Все названия в одной ячейке, видно текущее — ширина по самому длинному -->
+              <span class="layer__title layer__view-names"></span>
+            </button>
+            <button class="layer__view-more" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="viewmenu" aria-label="All views" title="All views">
+              <svg class="layer__view-chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg>
+            </button>
+          </div>
+          <div class="layer__bar-fill"></div>
+          <div class="bar-actions bar-actions--ops">
+            <button class="bar-btn bar-btn--reset" type="button" data-tree-action="reset" title="Reset statuses of the selected node" aria-label="Reset statuses">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path class="reset-dim" d="M7 14L11 17L11 11L7 14Z"/><path class="reset-full" d="M13 6L9 9L9 3L13 6Z"/><path class="reset-line" d="M4 13L4 8C4 6.89543 4.89543 6 6 6L8 6"/><path class="reset-line reset-line--dim" d="M16 7L16 12C16 13.1046 15.1046 14 14 14L12 14"/></svg>
+            </button>
+            <button class="bar-btn bar-btn--calc" type="button" title="Calculate toolpaths of the selected node">
+              <svg class="bar-btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path class="calc-play" d="M12.3135 7.57129C12.6371 7.76549 12.6371 8.23451 12.3135 8.42871L5.25684 12.6621C4.92359 12.862 4.5 12.622 4.5 12.2334L4.5 3.7666C4.5 3.378 4.92359 3.13805 5.25684 3.33789L12.3135 7.57129Z"/><rect class="calc-stop" x="4.5" y="4.5" width="7" height="7" rx="1"/></svg>
+              <span class="bar-btn__text">Calculate</span>
+            </button>
+            <!-- Сплит-кнопка: + сразу добавляет операцию последнего типа, ▾ открывает меню типов -->
+            <div class="bar-split">
+              <button class="bar-btn bar-btn--add" type="button" title="Add operation: Face milling" aria-label="Add operation: Face milling">
+                <svg class="bar-btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path class="add-plus" d="M13 8H3M8 13V3"/></svg>
+              </button>
+              <button class="bar-btn bar-btn--more" type="button" title="Choose operation type" aria-label="Choose operation type" aria-haspopup="menu" aria-expanded="false" aria-controls="addmenu">
+                <svg class="bar-btn__chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg>
+              </button>
+            </div>
+          </div>
+          <!-- Model: Import — то же, что «+» у операций: Import сразу открывает файл, ▾ — варианты импорта (model.js) -->
+          <div class="bar-actions bar-actions--model">
+            <div class="bar-split">
+              <button class="bar-btn bar-btn--import" type="button" title="Import model" aria-label="Import model">
+                <span class="bar-btn__text">Import</span>
+              </button>
+              <button class="bar-btn bar-btn--more" type="button" title="Import options" aria-label="Import options">
+                <svg class="bar-btn__chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg>
+              </button>
+            </div>
+            <input class="model-file" type="file" multiple hidden accept=".step,.stp,.iges,.igs,.stl,.sldprt,.sldasm,.x_t,.x_b,.3dm,.obj">
+          </div>
+          <!-- Simulation: управление в шапке — развернуть вниз, скорость, сброс, шаги, Play (simulation.js);
+               только в компактном режиме -->
+          <div class="bar-actions bar-actions--sim" id="sim-head-actions"></div>
+        </div>
+        <!-- Под шапкой, пока раскрыто дерево: свернуть/раскрыть всё и поиск -->
+        <div class="tree-tools">
+          <!-- Одна кнопка: иконка показывает доступное действие — свернуть всё или раскрыть всё -->
+          <button class="tool-btn tool-btn--fold" type="button" data-tree-action="fold" title="Collapse all" aria-label="Collapse all">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path class="fold-collapse" d="M4.6 1.8 8 5.2l3.4-3.4M4.6 14.2 8 10.8l3.4 3.4"/><path class="fold-expand" d="M4.6 5.2 8 1.8l3.4 3.4M4.6 10.8 8 14.2l3.4-3.4"/></svg>
+          </button>
+          <!-- Как строка Sort · Approach/Return в ENCY, но в ряду поиска — после «свернуть» (tree-tools.js): порядок показа
+               и связи подвода/отвода между операциями -->
+          <button class="tool-btn tool-btn--menu tree-sort" type="button" title="Sort: Program order" aria-label="Sort" aria-haspopup="menu" aria-expanded="false">
+            <svg class="tool-btn__icon" viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="7" width="10" height="2" fill="currentColor"/><rect x="4" y="11" width="8" height="2" fill="currentColor"/><rect x="4" y="15" width="6" height="2" fill="currentColor"/><rect x="4" y="19" width="3" height="2" fill="currentColor"/><path d="M20 15h4l-5 6-5-6h4V7h2z" fill="var(--accent)"/></svg><svg class="tool-btn__chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg>
+          </button>
+          <button class="tool-btn tool-btn--menu tree-links" type="button" title="Approach/Return" aria-label="Approach/Return" aria-haspopup="menu" aria-expanded="false">
+            <svg class="tool-btn__icon" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="6.5" y="7.5" width="6" height="4" rx="1.5" stroke="currentColor"/><rect x="6.5" y="16.5" width="6" height="4" rx="1.5" stroke="currentColor"/><path class="tree-links__arrow" d="M17 12 14 9.5 17 7z" fill="var(--accent)"/><path class="tree-links__curve" d="M18 9.5h1.5c1.1 0 2 .9 2 2v5c0 1.1-.9 2-2 2h-5" stroke="var(--accent)"/></svg><svg class="tool-btn__chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg>
+          </button>
+          <label class="tree-search">
+            <svg class="tree-search__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 13.5 13.5"/></svg>
+            <input class="tree-search__input" type="text" placeholder="Search operations, tools, T#" spellcheck="false" autocomplete="off" aria-label="Search operations">
+            <span class="tree-search__count" aria-live="polite"></span>
+            <button class="tree-search__clear" type="button" aria-label="Clear search" title="Clear (Esc)" hidden>
+              <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5"/></svg>
+            </button>
+          </label>
+        </div>
+        <!-- Режим одной операции: виден, когда дерево свёрнуто. Слева листалка ↑ ≡ ↓ -->
+        <div class="current">
+          <div class="current__nav">
+            <button class="current__btn" type="button" data-step="-1" aria-label="Предыдущая операция">
+              <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 6.5 5 3.5l3 3" /></svg>
+            </button>
+            <button class="current__btn current__btn--list" type="button" aria-label="Список операций" aria-haspopup="listbox" aria-expanded="false" aria-controls="oplist">
+              <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3h6M2 5h6M2 7h6" /></svg>
+            </button>
+            <button class="current__btn" type="button" data-step="1" aria-label="Следующая операция">
+              <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5l3-3" /></svg>
+            </button>
+          </div>
+          <!-- Две строки через линию: номер · операция · статус / номер инструмента · инструмент.
+               Номера в одном столбике — названия операции и инструмента на одной вертикали -->
+          <button class="current__info" type="button" aria-label="Текущая операция — раскрыть дерево">
+            <span class="current__index"></span>
+            <span class="current__name">No operation selected</span>
+            <span class="current__status"></span>
+            <span class="current__tool-number"></span>
+            <span class="current__tool-name"></span>
+          </button>
+        </div>
+        <ul class="tree" id="operations-tree" role="tree" aria-label="Operations"></ul>
+        <!-- Model (model.js): панель над деревом — создать и Import, как в ENCY; дерево модели с галочками видимости -->
+        <div class="model-tools" role="toolbar" aria-label="Model"></div>
+        <ul class="tree model-tree" id="model-tree" role="tree" aria-label="Model"></ul>
+        <!-- Simulation (simulation.js), как в ENCY: под шапкой — свернуть/раскрыть всё и поиск (как у операций),
+             компактное управление (охват, столкновения), дерево кода — станок, установы, операции и их код -->
+        <div class="sim" id="sim">
+          <div class="tree-tools sim-search">
+            <button class="tool-btn tool-btn--fold" type="button" title="Expand all operations" aria-label="Expand all operations">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path class="fold-collapse" d="M4.6 1.8 8 5.2l3.4-3.4M4.6 14.2 8 10.8l3.4 3.4"/><path class="fold-expand" d="M4.6 5.2 8 1.8l3.4 3.4M4.6 10.8 8 14.2l3.4-3.4"/></svg>
+            </button>
+            <label class="tree-search">
+              <svg class="tree-search__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 13.5 13.5"/></svg>
+              <input class="tree-search__input" type="text" placeholder="Search code, operations, T#" spellcheck="false" autocomplete="off" aria-label="Search program code">
+              <span class="tree-search__count" aria-live="polite"></span>
+              <button class="tree-search__clear" type="button" aria-label="Clear search" title="Clear (Esc)" hidden>
+                <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1.5 1.5l5 5M6.5 1.5l-5 5"/></svg>
+              </button>
+            </label>
+          </div>
+          <div class="sim-dock" id="sim-dock"></div>
+          <div class="sim-tree" id="sim-tree" role="tree" aria-label="Program code"></div>
+        </div>
+        <!-- Разделитель между названием и инструментом: тянется, меняет ширину столбика инструмента -->
+        <div class="col-split tree-split" role="separator" aria-orientation="vertical" aria-label="Ширина столбика инструмента" tabindex="0"></div>
+      </section>
+
+      <div class="layers__split" role="separator" aria-orientation="horizontal" aria-label="Высота дерева"></div>
+
+      <section class="layer layer--inspector plastic" data-panel="inspector">
+        <button class="layer__header" type="button" aria-expanded="false" aria-controls="inspector-body">
+          <span class="layer__title">Inspector</span>
+          <span class="layer__grip" title="Drag to move" aria-hidden="true"></span>
+        </button>
+        <div class="layer__body insp-body" id="inspector-body" role="region" aria-label="Inspector" hidden></div>
+      </section>
+
+      <div class="layers__split" role="separator" aria-orientation="horizontal" aria-label="Высота дерева"></div>
+
+      <section class="layer layer--chat plastic" data-panel="chat">
+        <button class="layer__header" type="button" aria-expanded="false" aria-controls="chat-body">
+          <span class="layer__title">CamAgent</span>
+          <span class="layer__grip" title="Drag to move" aria-hidden="true"></span>
+        </button>
+        <div class="layer__body chat" id="chat-body" role="region" aria-label="CamAgent" hidden>
+          <div class="chat__messages" role="log" aria-live="polite">
+            <div class="chat__empty">
+              <p class="chat__hint">Ask CamAgent about the operations tree, tools or machining strategy.</p>
+              <div class="chat__suggestions">
+                <button class="chat__suggestion" type="button">How many operations are in Setup 1?</button>
+                <button class="chat__suggestion" type="button">Explain the selected operation</button>
+                <button class="chat__suggestion" type="button">How can I reduce cycle time?</button>
+              </div>
+            </div>
+          </div>
+
+          <form class="chat__composer">
+            <!-- Контекст: что выбрано сейчас (операция, грань) и прикреплённые файлы — уйдут вместе с сообщением -->
+            <div class="chat__context" aria-label="Контекст сообщения" hidden></div>
+
+            <!-- Поле: + файлы · текст · Stop (пока ассистент отвечает) · голос. Enter — отправить -->
+            <div class="chat__box">
+              <button class="chat__icon-btn chat__attach" type="button" aria-label="Прикрепить файлы" title="Attach files">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M8 13V3" /></svg>
+              </button>
+              <input class="chat__file" type="file" multiple hidden>
+              <textarea class="chat__input" rows="1" placeholder="Message CamAgent…" aria-label="Message"></textarea>
+              <button class="chat__icon-btn chat__stop" type="button" aria-label="Остановить ответ" title="Stop" hidden>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1.5" /></svg>
+              </button>
+              <button class="chat__icon-btn chat__mic" type="button" aria-label="Голосовой ввод" title="Voice input" aria-pressed="false">
+                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="6" y="2" width="4" height="8" rx="2" /><path d="M3.5 7.5a4.5 4.5 0 0 0 9 0M8 12v2.5" /></svg>
+              </button>
+            </div>
+
+            <!-- Под полем: режим слева, модель и индикатор ответа справа -->
+            <div class="chat__meta">
+              <button class="chat__picker" type="button" data-picker="mode" aria-haspopup="menu" aria-expanded="false" title="Mode">
+                <span class="chat__picker-value"></span>
+                <svg class="chat__picker-chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3" /></svg>
+              </button>
+              <span class="chat__note" aria-live="polite"></span>
+              <button class="chat__picker" type="button" data-picker="model" aria-haspopup="menu" aria-expanded="false" title="Model">
+                <span class="chat__picker-value"></span>
+                <span class="chat__picker-extra"></span>
+                <svg class="chat__picker-chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3" /></svg>
+              </button>
+              <span class="chat__spinner" aria-hidden="true" hidden></span>
+
+              <div class="chat__menu chat__menu--mode" data-menu="mode" role="menu" aria-label="Mode" hidden></div>
+              <div class="chat__menu chat__menu--model" data-menu="model" role="menu" aria-label="Model" hidden></div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Что показывает первая панель — список комбобокса в её шапке -->
+      <div class="viewmenu" id="viewmenu" role="listbox" aria-label="Show in the panel" hidden></div>
+
+      <!-- Меню «Add operation» — типы операций по группам -->
+      <div class="addmenu" id="addmenu" role="menu" aria-label="Add operation" hidden></div>
+
+      <!-- Список операций для быстрого перехода (кнопка ≡ в режиме одной операции) -->
+      <div class="oplist" id="oplist" role="listbox" aria-label="Операции" hidden></div>
+    </div>
+
+    <!-- Ручка ширины колонки: дерево и все панели меняют ширину вместе -->
+    <div class="layers-resizer" role="separator" aria-orientation="vertical" aria-label="Ширина колонки" tabindex="0"></div>
+
+    <!-- Правый док: сюда приклеиваются Inspector и Chat, если отпустить их у правого края (docking.js) -->
+    <div class="dock" hidden></div>
+    <div class="layers-resizer dock-resizer" role="separator" aria-orientation="vertical" aria-label="Ширина правого дока" tabindex="0" hidden></div>
+
+    <!-- Широкий режим симуляции (simulation.js): управление и таймлайн внизу сцены, прячется под край,
+         как полоса функций сверху; скрепка закрепляет -->
+    <div class="simbar float-panel" id="simbar" hidden></div>
+
+    <!-- Окно NC-блока: двойной клик по строке кода (или клик по её точке) -->
+    <div class="ncpanel float-panel" id="ncpanel" role="dialog" aria-label="NC block" hidden></div>
+
+    <!-- Пока тянешь панель — где она встанет, если отпустить -->
+    <div class="dock-hint" hidden></div>
+  </main>
+
+  <script src="divider.js"></script>
+  <script src="status-icons.js"></script>
+  <script src="tree.js"></script>
+  <script src="current.js"></script>
+  <script src="tree-tools.js"></script>
+  <script src="script.js"></script>
+  <script src="docking.js"></script>
+  <script src="model.js"></script>
+  <script src="chat.js"></script>
+  <script src="inspector-icons.js"></script>
+  <script src="inspector.js"></script>
+  <script src="filter-icons.js"></script>
+  <script src="view-panels.js"></script>
+  <script src="simulation.js"></script>
+  <script src="projects.js"></script>
+  <script type="module" src="scene.js"></script>
+</body>
+</html>
