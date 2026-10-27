@@ -285,10 +285,17 @@
       <div class="layers__split" role="separator" aria-orientation="horizontal" aria-label="Высота дерева"></div>
 
       <section class="layer layer--chat plastic" data-panel="chat">
-        <button class="layer__header" type="button" aria-expanded="false" aria-controls="chat-body">
-          <span class="layer__title">CamAgent</span>
-          <span class="layer__grip" title="Drag to move" aria-hidden="true"></span>
-        </button>
+        <!-- Шапка: название (клик — свернуть / развернуть, тянуть — открепить) и выбор в интерфейсе —
+             как стрелка в Claude; работает и у свёрнутой панели (pick.js) -->
+        <div class="layer__bar">
+          <button class="layer__header" type="button" aria-expanded="false" aria-controls="chat-body">
+            <span class="layer__title">CamAgent</span>
+            <span class="layer__grip" title="Drag to move" aria-hidden="true"></span>
+          </button>
+          <button class="bar-btn chat__pick" type="button" aria-label="Pick from the interface" title="Pick from the interface into the context (Shift — several, Esc — cancel)" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5l9 4.2-3.9 1.2-1.3 3.9z" /><path d="M12 10.25v3.5M10.25 12h3.5" /></svg>
+          </button>
+        </div>
         <div class="layer__body chat" id="chat-body" role="region" aria-label="CamAgent" hidden>
           <div class="chat__messages" role="log" aria-live="polite">
             <div class="chat__empty">
@@ -384,6 +391,7 @@
   <script src="filter-icons.js"></script>
   <script src="view-panels.js"></script>
   <script src="simulation.js"></script>
+  <script src="pick.js"></script>
   <script src="projects.js"></script>
   <script type="module" src="scene.js"></script>
 </body>

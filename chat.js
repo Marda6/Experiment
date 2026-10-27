@@ -37,6 +37,13 @@ const FACE_NAMES = {
 const selection = { operation: selectedItem, model: null, face: null };
 const dismissed = { operation: false, model: false, face: false };
 let attachments = []; // прикреплённые файлы — уходят с ближайшим сообщением
+let picks = []; // выбранное в интерфейсе кнопкой-курсором (pick.js) — тоже уходит с ближайшим сообщением
+
+// Выбрали в интерфейсе — чип в контексте (одно и то же дважды не добавляем)
+function addContextPick(pick) {
+  if (!picks.some((other) => other.kind === pick.kind && other.name === pick.name)) picks = [...picks, pick];
+  renderContext();
+}
 
 function contextItems() {
   const items = [];
@@ -51,6 +58,7 @@ function contextItems() {
   if (face && !dismissed.face) {
     items.push({ key: 'face', kind: 'Face', name: `${face.part} · ${FACE_NAMES[face.face].en}`, face });
   }
+  picks.forEach((pick) => items.push({ key: 'pick', kind: pick.kind, name: pick.name, pick }));
   attachments.forEach((file) => items.push({ key: 'file', kind: 'File', name: file.name, file }));
   return items;
 }
@@ -79,6 +87,7 @@ function renderContext() {
   const items = contextItems();
   contextBar.replaceChildren(...items.map((item) => createChip(item, () => {
     if (item.key === 'file') attachments = attachments.filter((file) => file !== item.file);
+    else if (item.key === 'pick') picks = picks.filter((pick) => pick !== item.pick);
     else dismissed[item.key] = true;
     renderContext();
     input.focus();
@@ -345,9 +354,10 @@ function send(text) {
   const question = text.trim();
   if (!question) return;
 
-  // файлы уходят с этим сообщением, выделение остаётся контекстом и дальше
+  // файлы и выбранное в интерфейсе уходят с этим сообщением, выделение остаётся контекстом и дальше
   const context = contextItems();
   attachments = [];
+  picks = [];
   renderContext();
   input.value = '';
   autosize();

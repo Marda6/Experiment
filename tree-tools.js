@@ -445,7 +445,7 @@ treeMenu.addEventListener('keydown', (event) => {
   const step = { ArrowDown: 1, ArrowUp: -1 }[event.key];
   if (!step) return;
   event.preventDefault();
-  const items = [...treeMenu.querySelectorAll('button')];
+  const items = [...treeMenu.querySelectorAll('button:not(:disabled)')];
   items[(items.indexOf(document.activeElement) + step + items.length) % items.length].focus();
 });
 
@@ -520,13 +520,21 @@ const VIEW_SETTINGS = {
       applyTreeTools();
       switches.forEach((item, index) => item.setOn(treeToolsShown[TREE_TOOL_PARTS[index].id]));
     }));
-    // Режим одной операции — первым; то же, что двойной клик по разделителю под деревом (script.js)
+    // Режим одной операции — первым; то же, что двойной клик по разделителю под деревом (script.js).
+    // В нём ряда под шапкой нет — его настройки неактивны и держат состояние развёрнутого дерева
     const line = document.createElement('div');
     line.className = 'treemenu__line';
+    const label = treeMenuLabel('Show under the header');
+    const syncDisabled = () => {
+      [label, ...switches].forEach((item) => item.classList.toggle('is-disabled', !treeOpen));
+      switches.forEach((item) => { item.disabled = !treeOpen; });
+    };
     const single = treeMenuSwitch('Single operation', !treeOpen, (on) => {
       if (on === treeOpen) toggleTree();
+      syncDisabled();
     });
-    return [single, line, treeMenuLabel('Show under the header'), ...switches];
+    syncDisabled();
+    return [single, line, label, ...switches];
   },
   model: () => [
     treeMenuLabel('Show under the header'),
