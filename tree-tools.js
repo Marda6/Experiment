@@ -5,7 +5,8 @@
 // refreshOperationIndex, nameOf, OPERATION_POOLS, OPERATION_TOOLS — из tree.js
 
 const calcButton = document.querySelector('.bar-btn--calc');
-const calcText = calcButton.querySelector('.bar-btn__text');
+const calcPercent = calcButton.querySelector('.calc-label--pct');
+const calcRing = calcButton.querySelector('.calc-ring');
 const addButton = document.querySelector('.bar-btn--add'); // + — добавить операцию последнего типа
 const moreButton = document.querySelector('.bar-btn--add + .bar-btn--more'); // ▾ — меню типов
 const addMenu = document.getElementById('addmenu');
@@ -41,10 +42,19 @@ const CALC_STEP_MS = [15, 120]; // …но шаг не быстрее 15 и не
 
 let calcRun = null; // { queue, total, current, stage, step, timer }
 
+// Доля пройденных шагов: готовые операции целиком плюс шаги текущей
+function calcProgress(run) {
+  const finished = run.total - run.queue.length - (run.current ? 1 : 0);
+  return (finished * CALC_STEPS.length + (run.current ? run.stage : 0)) / (run.total * CALC_STEPS.length);
+}
+
+// Пока считает — кольцо и проценты; наведение или фокус — ■ Stop (CSS)
 function setCalcUi(running) {
   calcButton.classList.toggle('is-running', running);
-  calcButton.title = running ? 'Stop calculation' : 'Calculate toolpaths of the selected node';
-  calcText.textContent = running ? `Stop ${calcRun.total - calcRun.queue.length}/${calcRun.total}` : 'Calculate';
+  const percent = running ? Math.floor(calcProgress(calcRun) * 100) : 0;
+  calcPercent.textContent = `${percent}%`;
+  calcRing.style.strokeDasharray = `${percent} 100`;
+  calcButton.title = running ? `Stop calculation (${percent}%)` : 'Calculate toolpaths of the selected node';
 }
 
 function stopCalc() {
@@ -62,7 +72,6 @@ function calcStep() {
   if (!run.current) {
     run.current = run.queue.shift();
     run.stage = 0;
-    setCalcUi(true);
   }
 
   setStatus(run.current, CALC_STEPS[run.stage]);
@@ -78,6 +87,7 @@ function calcStep() {
       return;
     }
   }
+  setCalcUi(true);
   run.timer = setTimeout(calcStep, run.step);
 }
 

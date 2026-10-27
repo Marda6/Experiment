@@ -39,7 +39,12 @@
 
     <span class="header__divider" role="separator" aria-orientation="vertical"></span>
 
-    <div class="ptabs" role="tablist" aria-label="Projects"></div>
+    <!-- Вкладки проектов, за ними — «N more» (не вместились: список, выбрать или закрыть) и новая вкладка -->
+    <div class="ptabs-area">
+      <div class="ptabs" role="tablist" aria-label="Projects"></div>
+      <button class="ptabs__more" type="button" aria-haspopup="menu" aria-expanded="false" hidden><span class="ptabs__more-count"></span> more<svg class="ptabs__more-chev" viewBox="0 0 8 5" aria-hidden="true"><path d="M1 1l3 3 3-3"/></svg></button>
+      <button class="hbtn ptabs__add" type="button" title="New tab" aria-label="New tab"><svg class="hbtn__icon hbtn__icon--plus" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M0 6H6M6 6H12M6 6V0M6 6V12" stroke="currentColor"/></svg></button>
+    </div>
 
     <!-- Справа (как в ENCY): уведомления, ещё — и кнопки окна -->
     <div class="hgroup hgroup--right">
@@ -170,8 +175,9 @@
               <svg viewBox="0 0 20 20" aria-hidden="true"><path class="reset-dim" d="M7 14L11 17L11 11L7 14Z"/><path class="reset-full" d="M13 6L9 9L9 3L13 6Z"/><path class="reset-line" d="M4 13L4 8C4 6.89543 4.89543 6 6 6L8 6"/><path class="reset-line reset-line--dim" d="M16 7L16 12C16 13.1046 15.1046 14 14 14L12 14"/></svg>
             </button>
             <button class="bar-btn bar-btn--calc" type="button" title="Calculate toolpaths of the selected node">
-              <svg class="bar-btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path class="calc-play" d="M12.3135 7.57129C12.6371 7.76549 12.6371 8.23451 12.3135 8.42871L5.25684 12.6621C4.92359 12.862 4.5 12.622 4.5 12.2334L4.5 3.7666C4.5 3.378 4.92359 3.13805 5.25684 3.33789L12.3135 7.57129Z"/><rect class="calc-stop" x="4.5" y="4.5" width="7" height="7" rx="1"/></svg>
-              <span class="bar-btn__text">Calculate</span>
+              <svg class="bar-btn__icon" viewBox="0 0 16 16" aria-hidden="true"><path class="calc-play" d="M12.3135 7.57129C12.6371 7.76549 12.6371 8.23451 12.3135 8.42871L5.25684 12.6621C4.92359 12.862 4.5 12.622 4.5 12.2334L4.5 3.7666C4.5 3.378 4.92359 3.13805 5.25684 3.33789L12.3135 7.57129Z"/><circle class="calc-track" cx="8" cy="8" r="6.25"/><circle class="calc-ring" cx="8" cy="8" r="6.25" pathLength="100" transform="rotate(-90 8 8)"/><rect class="calc-stop" x="5.5" y="5.5" width="5" height="5" rx="0.5"/></svg>
+              <!-- Все подписи в одной ячейке — ширина кнопки по самой длинной, при расчёте шапка не прыгает -->
+              <span class="bar-btn__text calc-labels"><span class="calc-label calc-label--idle">Calculate</span><span class="calc-label calc-label--pct">0%</span><span class="calc-label calc-label--stop">Stop</span></span>
             </button>
             <!-- Сплит-кнопка: + сразу добавляет операцию последнего типа, ▾ открывает меню типов -->
             <div class="bar-split">

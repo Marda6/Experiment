@@ -375,24 +375,170 @@ body {
 }
 
 /* Вкладки проектов: активная — тон, неактивные — приглушённый текст; × видна у активной и при наведении,
-   точка — несохранённые изменения */
+   точка — несохранённые изменения.
+   Как в ENCY: вкладки одной ширины (180) и сжимаются поровну, когда места мало, — но не уже --ptab-min:
+   лишние уходят во вкладку «N more» (projects.js). Между вкладками, перед «N more» и + — разделитель header
+   (16px, --divider), по 4px до него с каждой стороны; у активной вкладки он тоже остаётся */
+
+/* на header, а не на ленте: + стоит рядом с лентой и берёт тот же зазор */
+.header {
+  --ptab-width: 180px;
+  --ptab-min: 112px;
+  --ptab-gap: calc(var(--divider-gap) * 2 + 1px);
+}
+
+/* Вся ширина между кнопками проекта и правой группой; лента — по вкладкам, за ней «N more» и + */
+.ptabs-area {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
 
 .ptabs {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--ptab-gap);
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
 }
 
 .ptab {
-  flex-shrink: 0;
+  position: relative;
+  width: var(--ptab-width); /* и width, и basis: ширину ленты браузер считает по width */
+  flex: 0 1 var(--ptab-width);
+  min-width: var(--ptab-min);
   display: flex;
   align-items: center;
   height: var(--burger-size);
   border-radius: var(--layer-radius);
   transition: background-color 0.15s ease;
+}
+
+/* Разделитель сидит в зазоре слева — снаружи вкладки, поэтому у .ptab нет overflow: hidden */
+.ptab:not(:first-child)::before,
+.ptabs__more::before,
+.ptabs__add::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * (var(--divider-gap) + 1px));
+  width: 1px;
+  height: var(--divider-height);
+  transform: translateY(-50%);
+  background: var(--divider);
+  pointer-events: none;
+}
+
+/* + стоит сразу за лентой */
+.ptabs__add {
+  position: relative;
+  margin-left: var(--ptab-gap);
+}
+
+/* «N more» — как неактивная вкладка: приглушённый текст, ▾; открыт список — тон активной */
+.ptabs__more {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--burger-size);
+  margin-left: var(--ptab-gap);
+  padding: 0 10px 0 12px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.ptabs__more:not(:hover, [aria-expanded="true"]) {
+  color: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+.ptabs__more:hover {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.ptabs__more[aria-expanded="true"] {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+
+.ptabs__more:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.ptabs__more-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.ptabs__more-chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.15s ease;
+}
+
+.ptabs__more[aria-expanded="true"] .ptabs__more-chev {
+  transform: rotate(180deg);
+}
+
+/* Список «N more»: строка — имя (выбрать) и × (закрыть, видна всегда) */
+.ptabs-menu__row {
+  display: flex;
+  align-items: center;
+}
+
+.ptabs-menu__row .viewmenu__item {
+  flex: 1;
+  min-width: 0;
+}
+
+.ptabs-menu__row .viewmenu__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ptabs-menu__row .ptab__dot {
+  margin-right: 0;
+}
+
+.ptabs-menu__x {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.ptabs-menu__x:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.ptabs-menu__x:focus-visible {
+  opacity: 1;
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
 }
 
 .ptab:hover {
@@ -404,8 +550,10 @@ body {
 }
 
 .ptab__name {
-  max-width: 180px;
+  flex: 1 1 0;
+  min-width: 0;
   height: 100%;
+  text-align: left;
   padding: 0 8px 0 12px;
   overflow: hidden;
   white-space: nowrap;
@@ -746,7 +894,7 @@ body {
   height: 16px;
 }
 
-/* Calculate: ▶ акцентом темы; пока считает — ■ Stop */
+/* Calculate: ▶ акцентом темы; пока считает — кольцо прогресса и проценты, наведение — ■ Stop */
 .bar-btn--calc {
   padding: 0 12px 0 8px;
 }
@@ -772,8 +920,30 @@ body {
   fill: var(--accent);
 }
 
+.calc-track,
+.calc-ring,
 .calc-stop {
   display: none;
+}
+
+.calc-track,
+.calc-ring {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.calc-track {
+  stroke: currentColor;
+  stroke-opacity: 0.16;
+}
+
+.calc-ring {
+  stroke: var(--accent);
+  stroke-dasharray: 0 100;
+  transition: stroke-dasharray 0.12s linear;
+}
+
+.calc-stop {
   fill: currentColor;
 }
 
@@ -781,7 +951,32 @@ body {
   display: none;
 }
 
-.bar-btn--calc.is-running .calc-stop {
+.bar-btn--calc.is-running :is(.calc-track, .calc-ring) {
+  display: block;
+}
+
+/* Подписи — в одной ячейке, видна одна: Calculate · проценты · Stop (наведение, фокус) */
+.calc-labels {
+  display: grid;
+  text-align: left;
+}
+
+.calc-label {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+.calc-label--pct {
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-btn--calc:not(.is-running) .calc-label--idle,
+.bar-btn--calc.is-running:not(:hover, :focus-visible) .calc-label--pct,
+.bar-btn--calc.is-running:is(:hover, :focus-visible) .calc-label--stop {
+  visibility: visible;
+}
+
+.bar-btn--calc.is-running:is(:hover, :focus-visible) .calc-stop {
   display: block;
 }
 
@@ -4771,17 +4966,18 @@ body {
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
 
-/* Шестерёнка — первая зона шапки первой панели (до вида), линия справа. Зона на 1px шире —
-   линия встаёт сразу за 32px, на одной вертикали с линией листалки и рейки Inspector ниже */
+/* Шестерёнка — первая зона шапки первой панели (до вида). Как листалка и рейка Inspector ниже: зона 32px,
+   линия — сразу за ней (снаружи), на одной вертикали с их линией; подсветка не шире их кнопок */
 .layer__bar > .bar-btn--settings {
   flex-shrink: 0;
-  width: calc(var(--layer-head) + 1px);
-  box-shadow: inset -1px 0 0 var(--layer-line);
+  width: var(--layer-head);
+  box-shadow: 1px 0 0 var(--layer-line);
 }
 
 /* «Свернуть / раскрыть» — первая в ряду поиска, так же */
 .tree-tools .tool-btn--fold {
-  width: calc(var(--tree-tools-height) + 1px);
+  width: var(--tree-tools-height);
+  box-shadow: 1px 0 0 var(--layer-line);
 }
 
 /* Иконки узлов дерева (op-icons.js): станок, установ, операции — 16px перед названием, цветом строки */

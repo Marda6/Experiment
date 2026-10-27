@@ -128,13 +128,15 @@ function render() {
   // Ручка активна в зазорах между деревом и открытой панелью
   const lowerIndex = panels.indexOf(slotPanel);
   columnSplits().forEach((split, index) => {
-    const active = Boolean(isSplit) && index < lowerIndex;
+    // в режиме одной операции ручка под ней тоже тянется — вниз разворачивает дерево
+    const unfolds = index === 0 && !treeOpen && Boolean(slotPanel) && operations.dataset.view === 'operations';
+    const active = (Boolean(isSplit) && index < lowerIndex) || unfolds;
     split.classList.toggle('is-active', active);
-    split.classList.toggle('is-fold', index === 0); // сразу под деревом: двойной клик — одна операция
-    split.title = index === 0 ? 'Double-click: tree ↔ single operation' : '';
+    split.classList.toggle('is-fold', index === 0); // сразу под деревом: до упора вверх / двойной клик — одна операция
+    split.title = index === 0 ? 'Drag up to the end or double-click: single operation' : '';
     split.tabIndex = active ? 0 : -1;
     split.setAttribute('aria-hidden', String(!active));
-    if (active) split.setAttribute('aria-valuenow', String(Math.round(currentTreeHeight())));
+    if (active) split.setAttribute('aria-valuenow', String(Math.round(treeOrSingleHeight())));
   });
 }
 
@@ -236,13 +238,35 @@ operations.querySelector('.current__info').addEventListener('click', () => {
   operations.addEventListener('transitionend', scrollToSelected);
 });
 
-// Ручка высоты: тянуть мышью, стрелки ↑/↓ с фокусом на ручке. Двойной клик по ручке сразу под деревом —
-// дерево ↔ одна операция (в виде Operations; и из режима одной операции, когда ручка не тянется)
+// Ручка высоты: тянуть мышью, стрелки ↑/↓ с фокусом на ручке. Ручка сразу под деревом (в виде Operations):
+// дотянули дерево до минимума и дальше — режим одной операции, из него вниз — снова дерево;
+// двойной клик — дерево ↔ одна операция
+const FOLD_SNAP = 16; // запас за порогом, чтобы режимы не мигали на границе
 let splitDrag = null;
 
 function setTreeHeight(height) {
   treeHeight = clampTree(height, splitSpace());
   render();
+}
+
+// Высота дерева, которую просят ручкой: ниже минимума с запасом — одна операция;
+// из одной операции — ниже её блока с запасом — снова дерево этой высоты
+function dragTreeTo(height) {
+  if (treeOpen && operations.dataset.view === 'operations' && height <= SPLIT_MIN - FOLD_SNAP) {
+    treeOpen = false;
+    render();
+    return;
+  }
+  if (!treeOpen) {
+    if (height < basisOf(operations) + FOLD_SNAP) return;
+    treeOpen = true;
+  }
+  setTreeHeight(height);
+}
+
+// объявлена функцией: render() зовёт её ещё до этого места при загрузке
+function treeOrSingleHeight() {
+  return treeOpen ? currentTreeHeight() : basisOf(operations);
 }
 
 function endSplitDrag() {
@@ -253,13 +277,13 @@ function endSplitDrag() {
 splits.forEach((split) => {
   split.addEventListener('pointerdown', (event) => {
     if (!split.classList.contains('is-active') || event.button !== 0) return;
-    splitDrag = { startY: event.clientY, startHeight: currentTreeHeight() };
+    splitDrag = { startY: event.clientY, startHeight: treeOrSingleHeight() };
     split.setPointerCapture(event.pointerId);
     root.classList.add('is-splitting');
   });
 
   split.addEventListener('pointermove', (event) => {
-    if (splitDrag) setTreeHeight(splitDrag.startHeight + event.clientY - splitDrag.startY);
+    if (splitDrag) dragTreeTo(splitDrag.startHeight + event.clientY - splitDrag.startY);
   });
 
   split.addEventListener('pointerup', endSplitDrag);
@@ -274,7 +298,7 @@ splits.forEach((split) => {
     const step = { ArrowUp: -SPLIT_KEY_STEP, ArrowDown: SPLIT_KEY_STEP }[event.key];
     if (!step || !split.classList.contains('is-active')) return;
     event.preventDefault();
-    setTreeHeight(currentTreeHeight() + step);
+    dragTreeTo(treeOrSingleHeight() + step);
   });
 });
 

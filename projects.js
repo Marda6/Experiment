@@ -1,14 +1,20 @@
 // Проекты в header (как в ENCY): новый, открыть, сохранить и вкладки открытых проектов.
 // Прототип держит одно содержимое: вкладки переключаются, но дерево и сцена у всех пока общие.
 // Изменения в проекте (добавили операцию, посчитали, сбросили) — событие projectchange от tree-tools.js:
-// на вкладке появляется точка «не сохранено», Save (или Ctrl+S) её убирает
+// на вкладке появляется точка «не сохранено», Save (или Ctrl+S) её убирает.
+// Места мало — вкладки сжимаются до минимальной ширины (--ptab-min), дальше лишние уходят во вкладку «N more»:
+// по клику — их список (openTreeMenu, treeMenuItem из tree-tools.js), оттуда выбрать или закрыть.
+// Активная вкладка всегда на виду: если она среди лишних, встаёт последней видимой
 
 const projectTabs = document.querySelector('.ptabs');
 const projectFileInput = document.querySelector('.project-file');
+const projectAddButton = document.querySelector('.ptabs__add');
+const projectArea = document.querySelector('.ptabs-area');
+const projectMore = document.querySelector('.ptabs__more');
+const projectMoreCount = projectMore.querySelector('.ptabs__more-count');
 
-// Иконки ENCY (shared-ui/assets: hdr-tabclose, hdr-plus), цвет — текста
+// Иконка ENCY (shared-ui/assets: hdr-tabclose), цвет — текста
 const TAB_CLOSE_SVG = '<svg class="ptab__x-icon" viewBox="0 0 8.70711 8.70711" fill="none" aria-hidden="true"><path d="M0.353553 0.353553L8.35355 8.35355M8.35355 0.353553L0.353553 8.35355" stroke="currentColor"/></svg>';
-const TAB_PLUS_SVG = '<svg class="hbtn__icon hbtn__icon--plus" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M0 6H6M6 6H12M6 6V0M6 6V12" stroke="currentColor"/></svg>';
 
 let projects = [
   { id: 1, name: 'Housing', dirty: false },
@@ -20,8 +26,11 @@ let nextProjectId = 4;
 
 const activeProject = () => projects.find((project) => project.id === activeProjectId);
 
+let projectTabEls = []; // вкладки всех проектов по порядку; в ленте — те, что вмещаются
+let overflowProjects = []; // не вместились — в списке «N more»
+
 function renderProjectTabs() {
-  const tabs = projects.map((project) => {
+  projectTabEls = projects.map((project) => {
     const active = project.id === activeProjectId;
     const tab = document.createElement('div');
     tab.className = active ? 'ptab is-active' : 'ptab';
@@ -60,23 +69,93 @@ function renderProjectTabs() {
     return tab;
   });
 
-  const add = document.createElement('button');
-  add.type = 'button';
-  add.className = 'hbtn';
-  add.title = 'New tab';
-  add.setAttribute('aria-label', 'New tab');
-  add.innerHTML = TAB_PLUS_SVG;
-  add.addEventListener('click', () => newProject());
-
-  projectTabs.replaceChildren(...tabs, add);
+  layoutProjectTabs();
 }
+
+// Сколько вкладок минимальной ширины вмещается в ленту: за ней + и, если не вместились все, «N more»
+function layoutProjectTabs() {
+  const min = parseFloat(getComputedStyle(projectArea).getPropertyValue('--ptab-min'));
+  const gap = parseFloat(getComputedStyle(projectTabs).columnGap);
+  const fit = (space) => Math.max(1, Math.floor((space + gap) / (min + gap)));
+  let space = projectArea.clientWidth - projectAddButton.offsetWidth - gap;
+  let count = projectTabEls.length;
+
+  projectMore.hidden = fit(space) >= count;
+  if (!projectMore.hidden) {
+    projectMoreCount.textContent = String(count - fit(space)); // ширина «N more» с похожим числом
+    space -= projectMore.offsetWidth + gap;
+    count = fit(space);
+  }
+
+  const activeIndex = projects.findIndex((project) => project.id === activeProjectId);
+  const shown = projectTabEls.map((_, index) => index < count);
+  if (activeIndex >= count) {
+    shown[count - 1] = false;
+    shown[activeIndex] = true;
+  }
+  projectTabs.replaceChildren(...projectTabEls.filter((_, index) => shown[index]));
+  overflowProjects = projects.filter((_, index) => !shown[index]);
+
+  const hiddenCount = overflowProjects.length;
+  projectMoreCount.textContent = String(hiddenCount);
+  projectMore.title = overflowProjects.map((project) => project.name).join('\n');
+  projectMore.setAttribute('aria-label', `${hiddenCount} more tabs`);
+  if (treeMenuOwner === projectMore) fillMoreMenu();
+}
+
+// Список «N more»: имя (с точкой «не сохранено») — сделать активной, × — закрыть, список остаётся открытым
+function moreMenuRows() {
+  return overflowProjects.map((project) => {
+    const row = document.createElement('div');
+    row.className = 'ptabs-menu__row';
+    const pick = treeMenuItem(project.name, {
+      onPick: () => {
+        activeProjectId = project.id;
+        renderProjectTabs();
+      },
+    });
+    pick.title = project.name;
+    if (project.dirty) {
+      const dot = document.createElement('span');
+      dot.className = 'ptab__dot';
+      dot.title = 'Unsaved changes';
+      pick.append(dot);
+    }
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'ptabs-menu__x';
+    close.title = 'Close';
+    close.setAttribute('aria-label', `Close ${project.name}`);
+    close.innerHTML = TAB_CLOSE_SVG;
+    close.addEventListener('click', () => closeProject(project.id));
+    row.append(pick, close);
+    return row;
+  });
+}
+
+// Список открыт — обновить после закрытия; лишних не осталось — закрыть, фокус — на +
+function fillMoreMenu() {
+  if (projectMore.hidden) {
+    closeTreeMenu();
+    projectAddButton.focus();
+    return;
+  }
+  const focusedIndex = [...treeMenu.querySelectorAll('button')].indexOf(document.activeElement);
+  closeTreeMenu();
+  openTreeMenu(projectMore, moreMenuRows());
+  const buttons = [...treeMenu.querySelectorAll('button')];
+  buttons[Math.min(Math.max(focusedIndex, 0), buttons.length - 1)]?.focus();
+}
+
+projectMore.addEventListener('click', () => openTreeMenu(projectMore, moreMenuRows()));
+projectAddButton.addEventListener('click', () => newProject());
+new ResizeObserver(() => layoutProjectTabs()).observe(projectArea);
 
 function openProject(name) {
   const project = { id: nextProjectId++, name, dirty: false };
   projects = [...projects, project];
   activeProjectId = project.id;
   renderProjectTabs();
-  projectTabs.querySelector('.ptab.is-active')?.scrollIntoView({ inline: 'nearest', block: 'nearest' });
 }
 
 // Новый проект — «New project N» со следующим свободным номером
