@@ -31,12 +31,14 @@ menu.addEventListener('keydown', (event) => {
   themeItems[(index + step + themeItems.length) % themeItems.length].focus();
 });
 
-// Темы: data-theme на <html>, выбор запоминается. 3D-сцена слушает событие themechange
+// Темы: data-theme на <html>, выбор запоминается. 3D-сцена слушает событие themechange.
+// Custom и Custom Dark — из акцента: их цвета ставит applyCustomPalette (accent.js)
 const THEME_KEY = 'prototype-theme';
 
 function applyTheme(name) {
   const theme = themeItems.some((item) => item.dataset.themeValue === name) ? name : 'stone';
   root.dataset.theme = theme;
+  applyCustomPalette(theme);
   themeItems.forEach((item) => item.setAttribute('aria-checked', String(item.dataset.themeValue === theme)));
   localStorage.setItem(THEME_KEY, theme);
   document.dispatchEvent(new CustomEvent('themechange'));

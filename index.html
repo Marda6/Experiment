@@ -6,8 +6,18 @@
   <title>Прототип</title>
   <link rel="stylesheet" href="styles.css">
   <script>
-    // Сохранённая тема — до первой отрисовки, чтобы не мигала тема по умолчанию
-    document.documentElement.dataset.theme = localStorage.getItem('prototype-theme') || 'stone';
+    // Сохранённая тема — до первой отрисовки, чтобы не мигала тема по умолчанию.
+    // Тема из акцента (Custom) — ещё и её цвета, сохранённые accent.js
+    (() => {
+      const theme = localStorage.getItem('prototype-theme') || 'stone';
+      document.documentElement.dataset.theme = theme;
+      try {
+        const vars = JSON.parse(localStorage.getItem('prototype-custom-palette') || '{}')[theme] || {};
+        Object.entries(vars).forEach(([name, value]) => document.documentElement.style.setProperty(name, value));
+      } catch {
+        // испорченная запись — accent.js соберёт палитру заново
+      }
+    })();
   </script>
   <script type="importmap">
     {
@@ -132,6 +142,33 @@
           </span>
           Mist Dark
         </button>
+        <!-- Из акцента: цвета подбирает accent.js -->
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="custom">
+          <span class="menu__swatches" data-theme="custom" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Custom
+        </button>
+        <button class="menu__item" type="button" role="menuitemradio" aria-checked="false" data-theme-value="custom-dark">
+          <span class="menu__swatches" data-theme="custom-dark" aria-hidden="true">
+            <span class="menu__swatch menu__swatch--view"></span>
+            <span class="menu__swatch menu__swatch--panel"></span>
+            <span class="menu__swatch menu__swatch--chat"></span>
+            <span class="menu__swatch menu__swatch--accent"></span>
+          </span>
+          Custom Dark
+        </button>
+      </div>
+      <!-- Акцент: выбрал — тема Custom той же светлоты, остальные цвета подбираются (accent.js) -->
+      <div class="menu__line" role="separator"></div>
+      <div class="menu__label" id="menu-accent-label">Accent<span class="accent-value"></span></div>
+      <div class="accent-row" role="group" aria-labelledby="menu-accent-label">
+        <label class="accent-swatch accent-swatch--any" title="Any color">
+          <input class="accent-input" type="color" aria-label="Any accent color">
+        </label>
       </div>
     </div>
   </header>
@@ -389,6 +426,7 @@
   <script src="tree.js"></script>
   <script src="current.js"></script>
   <script src="tree-tools.js"></script>
+  <script src="accent.js"></script>
   <script src="script.js"></script>
   <script src="docking.js"></script>
   <script src="model.js"></script>
