@@ -64,8 +64,13 @@ function renderDock() {
   const docked = dockPanels();
   dock.hidden = !docked.length;
   dockResizer.hidden = !docked.length;
-  if (docked.length > 1) docked[0].after(dockSplit);
-  else dockSplit.remove();
+  // ручку не переставляем, если она уже на месте: перестановка снимает захват указателя —
+  // при перетаскивании ручка отставала бы от мыши и застревала
+  if (docked.length > 1) {
+    if (docked[0].nextElementSibling !== dockSplit) docked[0].after(dockSplit);
+  } else {
+    dockSplit.remove();
+  }
 
   const both = docked.length > 1 && docked.every((panel) => !placeOf.get(panel).collapsed);
   docked.forEach((panel, index) => {
