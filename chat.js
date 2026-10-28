@@ -239,9 +239,9 @@ function selectedReply(ru, item = selectedItem) {
 
 // Какие операции обрабатывают грань (имитация по типу грани)
 const FACE_OPERATIONS = {
-  top: ['Face milling', 'Pocket roughing', 'Floor finishing'],
-  bottom: ['Face milling', 'Adaptive roughing'],
-  side: ['Contour 2D', 'Wall finishing', 'Drilling Ø6.8', 'Tapping M8'],
+  top: ['Face milling', 'Pocket roughing', 'Rest roughing', 'Wall finishing', 'Floor finishing', 'Slot roughing', 'Spot drilling', 'Drilling Ø6.8', 'Tapping M8', 'Chamfer 0.5×45°'],
+  bottom: ['Face milling 2', 'Chamfer 0.5×45° 2'],
+  side: ['Contour 2D'],
 };
 
 function faceReply({ part, face }, ru) {

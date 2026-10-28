@@ -1,16 +1,23 @@
 // История работы CamAgent. Каждый заход агента — запрос и правки «было → стало» с причиной у каждой,
-// плюс последствия: траектории пересчитаны, оценка времени. Режим чата: Auto — правит сразу, правки ждут
-// просмотра; Plan — сначала предлагает (Apply / Discard); Ask — только советует (chat.js).
+// плюс последствия: траектории пересчитаны, оценка времени (по траекториям — toolpathMinutes, toolpaths.js).
+// Режим чата: Auto — правит сразу, правки ждут просмотра; Plan — сначала предлагает (Apply / Discard);
+// Ask — только советует (chat.js).
 // Где видно: карточка под ответом в чате; метка ✦ у операции в дереве (и у веток над ней), пока правки
 // не просмотрены; в Inspector — полоса «CamAgent · N changes · Accept · Undo», изменённые строки с прежним
 // значением и точки на вкладках рейки.
 // Правка: proposed → review → accepted | reverted (в Plan: proposed → accepted | discarded). Откатить можно
 // одну правку, операцию или весь заход; параметр, который после агента поменяли руками, откат не трогает (edited).
-// Сценарий пока один: «ускорь черновую» — черновую выборку на адаптивную стратегию.
-// selectItem, setStatus, refreshBranchStatuses, nameOf, pathOf, tree, operationItems, operationsPanel — tree.js;
-// paramValue, setParam, paramKey, renderInspector, showInspectorTab, inspectorDecorators — inspector.js;
-// chatActions, isRussian, pluralRu, operationsWord — chat.js; scrollRowIntoView, markProjectChanged — tree-tools.js;
-// setTreeView — model.js; openCamAgent — pick.js
+// Виды правок: param — параметр операции; add — новая операция (откат — удалить её).
+// Заготовленные запросы (в пустом чате и после каждого ответа агента — те, что ещё можно сделать):
+//   Fix the errors in the project — столкновение держателя: длинный держатель, пересчёт;
+//   Speed up roughing — черновая выборка на адаптивную стратегию;
+//   Deburr the threaded holes — новая операция после резьбы;
+//   Improve the pocket floor finish — чистовая дна: шаг меньше, обороты выше; дольше — цена качества.
+// selectItem, setStatus, refreshBranchStatuses, refreshOperationIndex, renderNode, projectOp, opSpeeds, nameOf,
+// pathOf, tree, operationItems, operationsPanel — tree.js; paramValue, setParam, paramKey, toolStickOut, HOLDER_LONG,
+// renderInspector, showInspectorTab, inspectorDecorators — inspector.js; toolpathFor, toolpathMinutes, calcResultOf,
+// PART, PART_TOP — toolpaths.js; chatActions, messages, send, isRussian, pluralRu, operationsWord — chat.js;
+// scrollRowIntoView, markProjectChanged — tree-tools.js; setTreeView — model.js; openCamAgent — pick.js
 
 const AGENT_MARK_SVG = '<svg class="agent-mark" viewBox="0 0 10 10" aria-hidden="true"><path d="M5 0l1.2 3.8L10 5 6.2 6.2 5 10 3.8 6.2 0 5l3.8-1.2z"/></svg>';
 const AGENT_UNDO_SVG = '<svg class="agent-undo" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6.5h5a3 3 0 0 1 0 6H7"/><path d="M7 4 4.5 6.5 7 9"/></svg>';
@@ -20,12 +27,134 @@ const AGENT_CHAT_SVG = '<svg class="agent-chat" viewBox="0 0 16 16" aria-hidden=
 const agentRuns = [];
 let agentRunCount = 0;
 
-/* ---------- Сценарий: черновая выборка → адаптивная ---------- */
+/* ---------- Общее для сценариев ---------- */
+
+const inLang = (ru, text) => text[ru ? 'ru' : 'en'];
+
+function formatMinutes(minutes) {
+  const seconds = Math.round(minutes * 60);
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+const changesWord = (n, ru) =>
+  (ru ? `${n} ${pluralRu(n, ['правка', 'правки', 'правок'])}` : `${n} change${n === 1 ? '' : 's'}`);
+
+// Правки параметров по рецепту: { tab, label, field, to, why: { en, ru } | (item, ru) → текст }.
+// Значение уже такое — правки нет
+function recipeChanges(targets, recipe, ru) {
+  return targets.flatMap((item) => recipe.map((step) => {
+    const from = paramValue(item, step.tab, step.label)?.[step.field];
+    if (from === step.to) return null;
+    const why = typeof step.why === 'function' ? step.why(item, ru) : inLang(ru, step.why);
+    return { kind: 'param', item, tab: step.tab, label: step.label, field: step.field, from, to: step.to, why, state: 'proposed' };
+  }).filter(Boolean));
+}
+
+const minutesOf = (items) => items.reduce((sum, item) => sum + toolpathMinutes(item), 0);
+
+// Время операций, как если бы правки параметров уже применили (оценка до применения)
+function minutesWith(changes, items) {
+  const params = changes.filter((change) => change.kind === 'param');
+  params.forEach((change) => setParam(change.item, change.tab, change.label, { [change.field]: change.to }));
+  const minutes = minutesOf(items);
+  params.forEach((change) => setParam(change.item, change.tab, change.label, { [change.field]: change.from }));
+  return minutes;
+}
+
+const percent = (before, after) => Math.round(Math.abs(after / before - 1) * 100);
+
+function makeRun({ scenario, ru, mode, changes, metric }) {
+  const ops = [...new Set(changes.map((change) => change.item))];
+  return {
+    id: ++agentRunCount,
+    scenario,
+    ru,
+    mode,
+    ops,
+    changes,
+    metric, // { label, from, to } — строка под операциями в карточке
+    prevStatus: new Map(), // статус операций до захода — вернуть при полном откате
+    open: new Set(ops.length === 1 ? ops : []), // раскрытые в карточке операции
+    card: null,
+  };
+}
+
+// Ответ с правками: когда допечатан — карточка, правки (в Auto — сразу), следующие запросы
+function runAction(run, text) {
+  return {
+    text,
+    empty: false,
+    done: (message) => {
+      agentRuns.push(run);
+      run.card = document.createElement('div');
+      message.append(run.card);
+      if (run.mode === 'Auto') applyRun(run, 'review');
+      else renderRunCard(run);
+      appendFollowUps(message);
+    },
+  };
+}
+
+// Ответ без правок (делать нечего или нельзя) — только текст и следующие запросы
+const textAction = (text) => ({ text, empty: true, done: (message) => appendFollowUps(message) });
+
+/* ---------- Сценарий: исправить ошибки — длинный держатель там, где держатель задевает деталь ---------- */
+
+const FIX_REQUEST = /\bfix|error|collision|исправ|ошибк|столкнов/i;
+
+function planFix(question, context, mode) {
+  const ru = isRussian(question);
+  const targets = operationItems.filter((item) => toolpathFor(item).collision);
+  if (!targets.length) {
+    return textAction(ru
+      ? 'Проверил траектории — ошибок нет, держатель нигде не задевает деталь.'
+      : 'I checked the toolpaths: no errors, the holder clears the part everywhere.');
+  }
+  const depth = PART_TOP - PART.pocket.floor;
+  const changes = recipeChanges(targets, [{
+    tab: 'Tool',
+    label: 'Holder',
+    field: 'val',
+    to: HOLDER_LONG,
+    why: (item, isRu) => {
+      const reach = toolStickOut(item);
+      return isRu
+        ? `Фреза выступает на ${reach} мм, а карман глубиной ${depth} мм — держатель задевает стенку. С длинным держателем вылет ${reach + 20} мм.`
+        : `The tool sticks out ${reach} mm, the pocket is ${depth} mm deep, so the holder hits the wall. The long holder gives ${reach + 20} mm.`;
+    },
+  }], ru);
+  if (!changes.length) {
+    return textAction(ru
+      ? 'Держатель уже длинный, а столкновение осталось — тут нужен другой инструмент, сам не поменяю.'
+      : 'The holder is already long and the collision is still there: this needs another tool, I will not change it myself.');
+  }
+
+  const run = makeRun({ scenario: 'fix', ru, mode, changes, metric: { label: 'Errors', from: String(targets.length), to: '0' } });
+  const first = targets[0];
+  const z = toolpathFor(first).collision.z.toFixed(1);
+  const reach = toolStickOut(first);
+  const where = targets.length === 1
+    ? (ru ? `в «${nameOf(first)}»` : `in ${nameOf(first)}`)
+    : `${ru ? 'в' : 'in'} ${operationsWord(targets.length, ru)}`;
+  const found = ru
+    ? `Нашёл ошибку ${where}: на Z ${z} держатель задевает стенку кармана — фреза выступает на ${reach} мм, а карман глубиной ${depth} мм.`
+    : `Found an error ${where}: at Z ${z} the holder hits the pocket wall — the tool sticks out ${reach} mm, the pocket is ${depth} mm deep.`;
+  const fix = mode === 'Plan'
+    ? (ru
+      ? `Предлагаю длинный держатель ${HOLDER_LONG} — вылет ${reach + 20} мм. Пока ничего не менял.`
+      : `I suggest the long holder ${HOLDER_LONG}: ${reach + 20} mm stick-out. Nothing is changed yet.`)
+    : (ru
+      ? `Поставил длинный держатель ${HOLDER_LONG} — вылет ${reach + 20} мм — и пересчитал траекторию: столкновения нет.`
+      : `Switched to the long holder ${HOLDER_LONG} (${reach + 20} mm stick-out) and recalculated the toolpath: no collision.`);
+  return runAction(run, `${found}\n\n${fix}`);
+}
+
+/* ---------- Сценарий: ускорить черновую — выборку на адаптивную стратегию ---------- */
 
 const SPEEDUP_REQUEST = /ускор|быстрее|сократ|оптимиз|speed up|faster|optimi[sz]e|reduce cycle|cut cycle/i;
+const ROUGHING_WORD = /rough|черн/i;
 const ADAPTIVE_FROM = ['Pocket roughing', 'Slot roughing', 'Rest roughing']; // выбранную операцию этих типов — можно
 const ADAPTIVE_SCOPE_TYPE = 'Pocket roughing'; // в ветке — только выборка карманов, чтобы правок было обозримо
-const ADAPTIVE_SPEEDUP = 0.6; // адаптивная — примерно на 40% быстрее
 
 const ADAPTIVE_RECIPE = [
   {
@@ -65,96 +194,199 @@ const ADAPTIVE_RECIPE = [
   },
 ];
 
-// Что менять: выбранную черновую операцию; выбрана ветка (или ничего) — выборку карманов внутри
-function speedupTargets(scope) {
-  if (scope && !scope.classList.contains('tree__item--branch')) return ADAPTIVE_FROM.includes(scope.dataset.type) ? [scope] : [];
-  return [...(scope ?? tree).querySelectorAll(`.tree__item[data-type="${ADAPTIVE_SCOPE_TYPE}"]`)];
-}
-
-// Оценка времени операции (имитация, но стабильная): 2–5 минут
-const opMinutes = (item) => 2 + ((Math.max(operationItems.indexOf(item), 0) * 7) % 13) * 0.25;
-
-function formatMinutes(minutes) {
-  const seconds = Math.round(minutes * 60);
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-}
-
-const parametersWord = (n, ru) =>
-  (ru ? `${n} ${pluralRu(n, ['параметр', 'параметра', 'параметров'])}` : `${n} parameter${n === 1 ? '' : 's'}`);
-
-function speedupText(run, scope) {
-  const { ru } = run;
-  const leaf = scope && !scope.classList.contains('tree__item--branch');
-  const scopeName = nameOf(scope ?? tree.querySelector('.tree__item'));
-  const what = leaf
-    ? (ru ? `«${scopeName}»` : scopeName)
-    : `${operationsWord(run.ops.length, ru)} ${ru ? 'в' : 'in'} ${scopeName}`;
-  const params = parametersWord(run.changes.length, ru);
-  const time = `${formatMinutes(run.time.before)} → ${formatMinutes(run.time.after)} (−${Math.round((1 - ADAPTIVE_SPEEDUP) * 100)}%)`;
-
-  if (run.mode === 'Plan') {
-    return ru
-      ? `Предлагаю перевести черновую выборку на адаптивную стратегию: ${what}, ${params}.\n\nОценка времени: ${time}.\n\nПока ничего не менял — примените, если согласны.`
-      : `I suggest switching roughing to adaptive clearing: ${what}, ${params}.\n\nEstimated time: ${time}.\n\nNothing is changed yet — apply it if you agree.`;
+// Что менять: выбранную черновую операцию; выбрана ветка (или ничего) — выборку карманов внутри.
+// Выбрана другая операция, но просили именно черновую — весь проект
+function speedupTargets(scope, question) {
+  if (scope && !scope.classList.contains('tree__item--branch')) {
+    if (ADAPTIVE_FROM.includes(scope.dataset.type)) return { targets: [scope], scope };
+    if (!ROUGHING_WORD.test(question)) return { targets: [], scope };
+    scope = null;
   }
-  return ru
-    ? `Перевёл черновую выборку на адаптивную стратегию: ${what}, ${params}. Траектории пересчитал.\n\nОценка времени: ${time}.\n\nПравки — ниже, у каждой причина; любую можно откатить.`
-    : `Switched roughing to adaptive clearing: ${what}, ${params}. Toolpaths are recalculated.\n\nEstimated time: ${time}.\n\nThe changes are below, each with a reason; any of them can be undone.`;
+  return { targets: [...(scope ?? tree).querySelectorAll(`.tree__item[data-type="${ADAPTIVE_SCOPE_TYPE}"]`)], scope };
 }
 
-// Действие для чата (chat.js): не про ускорение или режим Ask — не наше
 function planSpeedup(question, context, mode) {
-  if (mode === 'Ask' || !SPEEDUP_REQUEST.test(question)) return null;
   const ru = isRussian(question);
-  const scope = context.find((item) => item.key === 'operation')?.operation ?? null;
-  const targets = speedupTargets(scope);
-  const nothing = (text) => ({ text, done() {} });
+  const selected = context.find((item) => item.key === 'operation')?.operation ?? null;
+  const { targets, scope } = speedupTargets(selected, question);
 
   if (!targets.length) {
-    return nothing(ru
+    return textAction(ru
       ? `«${nameOf(scope)}» ускорить пока не могу: умею переводить на адаптивную только черновую выборку. Выберите черновую операцию или установ.`
       : `I can't speed up ${nameOf(scope)} yet: so far I only switch roughing to adaptive clearing. Select a roughing operation or a setup.`);
   }
-
-  const changes = targets.flatMap((item) => ADAPTIVE_RECIPE.map((step) => {
-    const from = paramValue(item, step.tab, step.label)?.[step.field];
-    if (from === step.to) return null;
-    return { item, tab: step.tab, label: step.label, field: step.field, from, to: step.to, why: step.why[ru ? 'ru' : 'en'], state: 'proposed' };
-  }).filter(Boolean));
-
+  const changes = recipeChanges(targets, ADAPTIVE_RECIPE, ru);
   if (!changes.length) {
-    return nothing(ru
-      ? 'Здесь уже адаптивная стратегия с этими режимами — менять нечего.'
-      : 'This is already adaptive clearing with these settings — nothing to change.');
+    return textAction(ru
+      ? 'Черновая уже адаптивная с этими режимами — ускорять тут нечего.'
+      : 'Roughing is already adaptive with these settings — nothing to speed up.');
   }
 
   const ops = [...new Set(changes.map((change) => change.item))];
-  const before = ops.reduce((sum, item) => sum + opMinutes(item), 0);
-  const run = {
-    id: ++agentRunCount,
-    ru,
-    mode,
-    ops,
-    changes,
-    time: { before, after: before * ADAPTIVE_SPEEDUP },
-    prevStatus: new Map(), // статус операций до захода — вернуть при полном откате
-    open: new Set(ops.length === 1 ? ops : []), // раскрытые в карточке операции
-    card: null,
-  };
+  const before = minutesOf(ops);
+  const after = minutesWith(changes, ops);
+  const run = makeRun({ scenario: 'speedup', ru, mode, changes, metric: { label: 'Roughing time', from: formatMinutes(before), to: formatMinutes(after) } });
 
-  return {
-    text: speedupText(run, scope),
-    done: (message) => {
-      agentRuns.push(run);
-      run.card = document.createElement('div');
-      message.append(run.card);
-      if (mode === 'Auto') applyRun(run, 'review');
-      else renderRunCard(run);
-    },
-  };
+  const leaf = ops.length === 1 && scope === ops[0];
+  const scopeName = nameOf(scope ?? tree.querySelector('.tree__item'));
+  const what = leaf || ops.length === 1
+    ? (ru ? `«${nameOf(ops[0])}»` : nameOf(ops[0]))
+    : `${operationsWord(ops.length, ru)} ${ru ? 'в' : 'in'} ${scopeName}`;
+  const params = changesWord(changes.length, ru);
+  const time = `${formatMinutes(before)} → ${formatMinutes(after)} (−${percent(before, after)}%)`;
+  const text = mode === 'Plan'
+    ? (ru
+      ? `Предлагаю перевести черновую выборку на адаптивную стратегию: ${what}, ${params}.\n\nВремя черновой: ${time}.\n\nПока ничего не менял — примените, если согласны.`
+      : `I suggest switching roughing to adaptive clearing: ${what}, ${params}.\n\nRoughing time: ${time}.\n\nNothing is changed yet — apply it if you agree.`)
+    : (ru
+      ? `Перевёл черновую выборку на адаптивную стратегию: ${what}, ${params}. Траекторию пересчитал — вместо зигзага петли со спиральным врезанием.\n\nВремя черновой: ${time}.`
+      : `Switched roughing to adaptive clearing: ${what}, ${params}. The toolpath is recalculated — loops with a helical entry instead of the zigzag.\n\nRoughing time: ${time}.`);
+  return runAction(run, text);
 }
 
-chatActions.push(planSpeedup);
+/* ---------- Сценарий: снять заусенцы с резьбовых отверстий — новая операция после резьбы ---------- */
+
+const DEBURR_REQUEST = /deburr|burr|заусен|притуп/i;
+
+function planDeburr(question, context, mode) {
+  const ru = isRussian(question);
+  const anchor = operationItems.find((item) => item.dataset.type === 'Tapping M8');
+  if (!anchor) {
+    return textAction(ru
+      ? 'Резьбовых отверстий в проекте нет — снимать заусенцы не с чего.'
+      : 'There are no threaded holes in the project to deburr.');
+  }
+  const setup = anchor.closest('.tree__item[aria-level="2"]');
+  if (setup.querySelector('.tree__item[data-type="Deburring"]')) {
+    return textAction(ru
+      ? 'Заусенцы с отверстий уже снимаются — операция Deburring в проекте есть.'
+      : 'The holes are already deburred: the project has a Deburring operation.');
+  }
+
+  // Новая операция — пока вне дерева: встанет после резьбы, когда правку применят
+  const item = renderNode(projectOp('Deburring', opSpeeds(9000, 600)), Number(setup.getAttribute('aria-level')));
+  const change = {
+    kind: 'add',
+    item,
+    after: anchor,
+    label: 'New operation',
+    from: '—',
+    to: `Deburring · ${item.dataset.tool} ${item.dataset.toolName}`,
+    why: inLang(ru, {
+      ru: 'После нарезания резьбы на кромке остаётся заусенец — проход фасочной фрезой по кромке снимает его и облегчает заход болта.',
+      en: 'Tapping leaves a burr on the hole edge — a pass with the chamfer mill along the edge removes it and helps the bolt start.',
+    }),
+    state: 'proposed',
+  };
+  const setupOps = [...setup.querySelectorAll('.tree__item:not(.tree__item--branch)')];
+  const before = minutesOf(setupOps);
+  const added = toolpathMinutes(item);
+  const run = makeRun({ scenario: 'deburr', ru, mode, changes: [change], metric: { label: `${nameOf(setup)} time`, from: formatMinutes(before), to: formatMinutes(before + added) } });
+
+  const text = mode === 'Plan'
+    ? (ru
+      ? `Предлагаю добавить операцию «Deburring» после «${nameOf(anchor)}»: фасочная фреза ${item.dataset.tool} пройдёт по кромке каждого из четырёх отверстий M8. Это +${formatMinutes(added)} к ${nameOf(setup)}.\n\nПока ничего не добавлял.`
+      : `I suggest adding a Deburring operation after ${nameOf(anchor)}: the ${item.dataset.tool} chamfer mill runs along the edge of each of the four M8 holes. That adds ${formatMinutes(added)} to ${nameOf(setup)}.\n\nNothing is added yet.`)
+    : (ru
+      ? `Добавил операцию «Deburring» после «${nameOf(anchor)}»: фасочная фреза ${item.dataset.tool} проходит по кромке каждого из четырёх отверстий M8 и снимает заусенец после резьбы. Траекторию рассчитал — это +${formatMinutes(added)} к ${nameOf(setup)}.`
+      : `Added a Deburring operation after ${nameOf(anchor)}: the ${item.dataset.tool} chamfer mill runs along the edge of each of the four M8 holes and removes the burr left by tapping. The toolpath is calculated: ${formatMinutes(added)} more for ${nameOf(setup)}.`);
+  return runAction(run, text);
+}
+
+/* ---------- Сценарий: чище дно кармана — шаг меньше, обороты выше; дольше — цена качества ---------- */
+
+const FINISH_REQUEST = /finish|surface|quality|roughness|чистов|чистот|поверхн|качеств|шероховат/i;
+
+const FINISH_RECIPE = [
+  {
+    tab: 'Strategy', label: 'Stepover', field: 'val', to: '3.000',
+    why: {
+      en: 'Smaller scallops between passes of the R1 bull nose: floor roughness Ra 3.2 → 1.6 µm.',
+      ru: 'Гребешок между проходами бычьего носа R1 ниже: шероховатость дна Ra 3.2 → 1.6 мкм.',
+    },
+  },
+  {
+    tab: 'Speeds', label: 'Spindle speed', field: 'val', to: '11000 rpm',
+    why: {
+      en: 'Higher cutting speed at the same feed per tooth gives a cleaner surface.',
+      ru: 'Выше скорость резания при той же подаче на зуб — поверхность чище.',
+    },
+  },
+  {
+    tab: 'Speeds', label: 'Feed rate', field: 'val', to: '900 mm/min',
+    why: {
+      en: 'A slightly lower feed on the finishing pass leaves fewer tooth marks.',
+      ru: 'Чуть меньше подача на чистовом проходе — меньше следов от зубьев.',
+    },
+  },
+];
+
+function planFinish(question, context, mode) {
+  const ru = isRussian(question);
+  const targets = operationItems.filter((item) => item.dataset.type === 'Floor finishing');
+  if (!targets.length) {
+    return textAction(ru
+      ? 'Чистовой обработки дна в проекте нет — улучшать нечего.'
+      : 'There is no floor finishing in the project to improve.');
+  }
+  const changes = recipeChanges(targets, FINISH_RECIPE, ru);
+  if (!changes.length) {
+    return textAction(ru
+      ? 'Дно уже обрабатывается с мелким шагом и высокими оборотами — дальше только другой инструмент.'
+      : 'The floor already has a fine stepover and high spindle speed — the next step would be another tool.');
+  }
+
+  const before = minutesOf(targets);
+  const after = minutesWith(changes, targets);
+  const run = makeRun({ scenario: 'finish', ru, mode, changes, metric: { label: 'Floor finish time', from: formatMinutes(before), to: formatMinutes(after) } });
+  const from = (label) => changes.find((change) => change.label === label)?.from ?? '—';
+  const what = targets.length === 1 ? (ru ? `«${nameOf(targets[0])}»` : nameOf(targets[0])) : operationsWord(targets.length, ru);
+  const time = `${formatMinutes(before)} → ${formatMinutes(after)} (+${percent(before, after)}%)`;
+  const how = ru
+    ? `шаг ${parseFloat(from('Stepover'))} → 3 мм, обороты ${parseFloat(from('Spindle speed'))} → 11000, подача ${parseFloat(from('Feed rate'))} → 900 мм/мин`
+    : `stepover ${parseFloat(from('Stepover'))} → 3 mm, spindle ${parseFloat(from('Spindle speed'))} → 11000 rpm, feed ${parseFloat(from('Feed rate'))} → 900 mm/min`;
+  const text = mode === 'Plan'
+    ? (ru
+      ? `Предлагаю для ${what}: ${how}. Шероховатость дна Ra 3.2 → 1.6 мкм.\n\nЦена — время: ${time}. Пока ничего не менял.`
+      : `For ${what} I suggest: ${how}. Floor roughness Ra 3.2 → 1.6 µm.\n\nThe price is time: ${time}. Nothing is changed yet.`)
+    : (ru
+      ? `Сделал дно кармана чище в ${what}: ${how}. Шероховатость Ra 3.2 → 1.6 мкм. Траекторию пересчитал — проходов по дну стало больше.\n\nЦена — время: ${time}.`
+      : `Made the pocket floor cleaner in ${what}: ${how}. Roughness Ra 3.2 → 1.6 µm. The toolpath is recalculated — more passes over the floor.\n\nThe price is time: ${time}.`);
+  return runAction(run, text);
+}
+
+/* ---------- Сценарии в чате: распознать запрос, предложить следующие ---------- */
+
+// Порядок — как в демонстрации: ошибка, скорость, новая операция, качество
+const AGENT_SCENARIOS = [
+  { id: 'fix', prompt: 'Fix the errors in the project', match: FIX_REQUEST, plan: planFix },
+  { id: 'speedup', prompt: 'Speed up roughing', match: SPEEDUP_REQUEST, plan: planSpeedup },
+  { id: 'deburr', prompt: 'Deburr the threaded holes', match: DEBURR_REQUEST, plan: planDeburr },
+  { id: 'finish', prompt: 'Improve the pocket floor finish', match: FINISH_REQUEST, plan: planFinish },
+];
+// Распознаём в другом порядке: «ускорь чистовую» — про скорость, а не про качество
+const AGENT_MATCH_ORDER = ['fix', 'deburr', 'speedup', 'finish'].map((id) => AGENT_SCENARIOS.find((scenario) => scenario.id === id));
+
+chatActions.push((question, context, mode) => {
+  messages.querySelectorAll('.chat__followups').forEach((box) => box.remove());
+  if (mode === 'Ask') return null;
+  return AGENT_MATCH_ORDER.find((scenario) => scenario.match.test(question))?.plan(question, context, mode) ?? null;
+});
+
+// Под ответом — запросы, которые ещё есть смысл сделать (и не ждут Apply в режиме Plan)
+function appendFollowUps(message) {
+  const proposed = new Set(agentRuns.filter((run) => runState(run) === 'proposed').map((run) => run.scenario));
+  const next = AGENT_SCENARIOS.filter((scenario) => !proposed.has(scenario.id) && !scenario.plan(scenario.prompt, [], 'Auto').empty);
+  if (!next.length) return;
+  const box = agentNode('div', 'chat__followups');
+  box.append(...next.map((scenario) => {
+    const button = agentNode('button', 'chat__suggestion', scenario.prompt);
+    button.type = 'button';
+    button.addEventListener('click', () => send(scenario.prompt));
+    return button;
+  }));
+  message.append(box);
+}
 
 /* ---------- Правки: применить, принять, откатить ---------- */
 
@@ -165,16 +397,17 @@ const currentValue = (change) => paramValue(change.item, change.tab, change.labe
 // Правки, которые ждут просмотра: все или у одной операции
 const reviewChanges = (item) => agentRuns.flatMap((run) => run.changes.filter((change) => change.state === 'review' && (!item || change.item === item)));
 
-// Применить: параметры — новые, траектории пересчитаны агентом
+// Применить: новые операции — в дерево, параметры — новые, траектории пересчитаны агентом (итог — как у Calculate)
 function applyRun(run, state) {
-  run.ops.forEach((item) => {
-    run.prevStatus.set(item, item.dataset.status);
-    setStatus(item, 'done');
-  });
+  const added = run.changes.filter((change) => change.kind === 'add');
+  added.forEach((change) => change.after.after(change.item));
+  if (added.length) refreshOperationIndex();
+  run.ops.forEach((item) => run.prevStatus.set(item, item.dataset.status));
   run.changes.forEach((change) => {
-    setParam(change.item, change.tab, change.label, { [change.field]: change.to });
+    if (change.kind === 'param') setParam(change.item, change.tab, change.label, { [change.field]: change.to });
     change.state = state;
   });
+  run.ops.forEach((item) => setStatus(item, calcResultOf(item)));
   refreshBranchStatuses();
   markProjectChanged();
   refreshAgentViews();
@@ -190,11 +423,25 @@ function discardRun(run) {
   refreshAgentViews();
 }
 
-// Откат: вернуть прежнее значение. Поменяли руками после агента — не трогаем.
+// Убрать операцию, которую добавил агент; была выбрана — выбор переходит на её установ
+function removeOperation(item) {
+  const setup = item.parentElement.closest('.tree__item');
+  const wasSelected = selectedItem === item;
+  item.remove();
+  refreshOperationIndex();
+  if (wasSelected) selectItem(setup);
+}
+
+// Откат: вернуть прежнее значение, добавленную операцию — убрать. Поменяли руками после агента — не трогаем.
 // Статус: у операции откатили всё — прежний, часть — траектория устарела
 function revertChanges(run, changes) {
   const touched = new Set();
   changes.filter((change) => change.state === 'review' || change.state === 'accepted').forEach((change) => {
+    if (change.kind === 'add') {
+      removeOperation(change.item);
+      change.state = 'reverted';
+      return;
+    }
     touched.add(change.item);
     if (currentValue(change) !== change.to) {
       change.state = 'edited';
@@ -204,6 +451,7 @@ function revertChanges(run, changes) {
     change.state = 'reverted';
   });
   touched.forEach((item) => {
+    if (!item.isConnected) return;
     const all = run.changes.filter((change) => change.item === item).every((change) => change.state === 'reverted');
     setStatus(item, all ? run.prevStatus.get(item) ?? 'not-calculated' : 'not-calculated');
   });
@@ -230,10 +478,11 @@ function refreshAgentViews() {
 /* ---------- Переходы: к операции в дереве и Inspector, к заходу в чате ---------- */
 
 function revealOperation(item, changes) {
+  if (!item.isConnected) return; // предложенная, ещё не добавленная операция
   if (operationsPanel.dataset.view !== 'operations') setTreeView('operations');
   selectItem(item, { reveal: true });
   scrollRowIntoView(item);
-  const first = changes.find((change) => change.state === 'review') ?? changes[0];
+  const first = changes.find((change) => change.state === 'review' && change.tab) ?? changes.find((change) => change.tab);
   if (first) showInspectorTab(first.tab);
 }
 
@@ -314,9 +563,15 @@ function renderChange(run, change) {
 
   const head = agentNode('div', 'agent-change__line');
   const param = agentNode('span', 'agent-change__param');
-  param.append(agentNode('span', 'agent-change__tab', `${change.tab} › `), change.label);
   const diff = agentNode('span', 'agent-change__diff');
-  diff.append(agentNode('span', 'agent-change__from', valueText(change.from)), ' → ', agentNode('span', 'agent-change__to', valueText(change.to)));
+  if (change.kind === 'add') {
+    // новая операция: «New operation  Deburring · T16 Chamfer mill 90°»
+    param.append(change.label);
+    diff.append(agentNode('span', 'agent-change__to', change.to));
+  } else {
+    param.append(agentNode('span', 'agent-change__tab', `${change.tab} › `), change.label);
+    diff.append(agentNode('span', 'agent-change__from', valueText(change.from)), ' → ', agentNode('span', 'agent-change__to', valueText(change.to)));
+  }
   head.append(param, diff);
   if (CHANGE_STATES[change.state]) head.append(agentNode('span', 'agent-change__state', CHANGE_STATES[change.state]));
   if (canUndo(change)) {
@@ -352,7 +607,7 @@ function renderRunOp(run, item) {
     text: nameOf(item),
     onClick: () => revealOperation(item, own),
   });
-  name.title = `${pathOf(item)} › ${nameOf(item)} — show in the tree and Inspector`;
+  name.title = item.isConnected ? `${pathOf(item)} › ${nameOf(item)} — show in the tree and Inspector` : nameOf(item);
   row.append(toggle, name, agentNode('span', 'agent-op__count', String(own.length)));
   if (own.some(canUndo)) {
     row.append(agentButton('agent-icon-btn', {
@@ -381,16 +636,16 @@ function renderRunCard(run) {
   const head = agentNode('div', 'agent-run__head');
   head.innerHTML = AGENT_MARK_SVG;
   head.append(
-    agentNode('span', 'agent-run__title', `${run.ops.length} operation${run.ops.length === 1 ? '' : 's'} · ${parametersWord(run.changes.length, false)}`),
+    agentNode('span', 'agent-run__title', `${run.ops.length} operation${run.ops.length === 1 ? '' : 's'} · ${changesWord(run.changes.length, false)}`),
     agentNode('span', 'agent-run__state', RUN_STATES[state]),
   );
 
   // операции из разных установов называются одинаково — подписываем установ над его операциями
   const ops = agentNode('ul', 'agent-run__ops');
-  const grouped = new Set(run.ops.map(pathOf)).size > 1;
+  const grouped = new Set(run.ops.filter((item) => item.isConnected).map(pathOf)).size > 1;
   let lastPath = null;
   run.ops.forEach((item) => {
-    const path = pathOf(item);
+    const path = item.isConnected ? pathOf(item) : ''; // убранной или ещё не добавленной операции нет в дереве
     if (grouped && path !== lastPath) ops.append(agentNode('li', 'agent-run__group', path));
     lastPath = path;
     ops.append(renderRunOp(run, item));
@@ -398,8 +653,8 @@ function renderRunCard(run) {
 
   const metric = agentNode('div', 'agent-run__metric');
   metric.append(
-    agentNode('span', 'agent-run__label', 'Estimated time '),
-    agentNode('span', 'agent-run__time', `${formatMinutes(run.time.before)} → ${formatMinutes(run.time.after)}`),
+    agentNode('span', 'agent-run__label', `${run.metric.label} `),
+    agentNode('span', 'agent-run__time', `${run.metric.from} → ${run.metric.to}`),
   );
 
   const actions = agentNode('div', 'agent-run__actions');

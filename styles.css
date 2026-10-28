@@ -217,13 +217,22 @@
   --tree-tools-height: 32px; /* строка поиска и действий под шапкой Operations */
   --insp-label: 160px; /* столбик подписей в инспекторе */
 
-  /* Движения в коде симуляции (simulation.js): холостой ход — цвет ошибки, подвод — между ним и предупреждением,
-     врезание и отвод — предупреждение, рабочая подача — синий, подмешанный к тексту темы (светлее на тёмном) */
-  --motion-rapid: var(--status-error);
-  --motion-approach: color-mix(in oklab, var(--status-error) 45%, var(--status-warn));
-  --motion-feed: var(--status-warn);
-  --motion-work: color-mix(in oklab, #3d7ee6 72%, var(--panel-fg));
+  /* Движения — траектории во view (scene.js) и строки кода в симуляции (simulation.js). Как в большинстве CAM
+     (Fusion, Mastercam, NX): рабочая подача — синий; подвод, вход/выход и отвод — зелёный; холостой ход — янтарный
+     пунктир, самый тихий. Красный — только столкновение (цвет ошибки). Цвета свои, не из статусов; в тёмных темах —
+     светлее и насыщеннее, чтобы читались и на фоне, и на серой детали. Контраст с фоном сцены — от 3.6:1 */
+  --motion-work: #1467c2;
+  --motion-lead: #137d41;
+  --motion-rapid: #9c6900;
+  --motion-approach: var(--motion-lead);
+  --motion-feed: var(--motion-lead);
   --sim-hole: var(--panel-bg); /* точка внутри ромба ошибки — цвет подложки */
+}
+
+:root[data-theme$="-dark"] {
+  --motion-work: #51a9ff;
+  --motion-lead: #4cd676;
+  --motion-rapid: #fad03e;
 }
 
 * {
@@ -2311,11 +2320,17 @@ body {
   color: var(--chat-muted);
 }
 
-.chat__suggestions {
+.chat__suggestions,
+.chat__followups {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+}
+
+/* Следующие запросы под ответом агента (agent.js) — как заготовленные в пустом чате */
+.chat__followups {
+  margin-top: 4px;
 }
 
 .chat__suggestion {
@@ -5504,10 +5519,6 @@ body {
   padding: 0;
 }
 
-.insp.has-review .insp-split {
-  top: calc(var(--tree-row) + var(--layer-head));
-}
-
 /* Строка, изменённая агентом: полоса акцента слева, прежнее значение зачёркнуто, ↺ — при наведении */
 .irow--agent {
   box-shadow: inset 2px 0 0 var(--accent);
@@ -5553,5 +5564,53 @@ body {
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
+}
+
+/* Ошибка расчёта операции (toolpaths.js): полоса над вкладкой Inspector — значок, что случилось и что делать */
+.insp-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 8px 8px var(--layer-padding-x);
+  background: color-mix(in srgb, var(--status-error) 10%, var(--layer-bg));
+  box-shadow: inset 2px 0 0 var(--status-error), inset 0 -1px 0 var(--layer-line);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.insp-alert > .status {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.insp-alert__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.insp-alert__text strong {
+  font-weight: 600;
+}
+
+.insp-alert__btn {
+  flex-shrink: 0;
+  height: 24px;
+  padding: 0 8px;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.insp-alert__btn:hover {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.insp-alert__btn:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
 }
 

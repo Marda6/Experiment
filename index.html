@@ -342,12 +342,13 @@
         <div class="layer__body chat" id="chat-body" role="region" aria-label="CamAgent" hidden>
           <div class="chat__messages" role="log" aria-live="polite">
             <div class="chat__empty">
-              <p class="chat__hint">Ask CamAgent about the operations tree, tools or machining strategy.</p>
+              <p class="chat__hint">Ask CamAgent to work on the project — it changes operations, recalculates toolpaths and keeps every change reviewable.</p>
+              <!-- Заготовленные запросы: агент меняет проект (agent.js) — ошибка, скорость, новая операция, качество -->
               <div class="chat__suggestions">
-                <button class="chat__suggestion" type="button">How many operations are in Setup 1?</button>
-                <button class="chat__suggestion" type="button">Explain the selected operation</button>
-                <button class="chat__suggestion" type="button">How can I reduce cycle time?</button>
+                <button class="chat__suggestion" type="button">Fix the errors in the project</button>
                 <button class="chat__suggestion" type="button">Speed up roughing</button>
+                <button class="chat__suggestion" type="button">Deburr the threaded holes</button>
+                <button class="chat__suggestion" type="button">Improve the pocket floor finish</button>
               </div>
             </div>
           </div>
@@ -433,6 +434,7 @@
   <script src="model.js"></script>
   <script src="chat.js"></script>
   <script src="inspector.js"></script>
+  <script src="toolpaths.js"></script>
   <script src="filter-icons.js"></script>
   <script src="view-panels.js"></script>
   <script src="simulation.js"></script>

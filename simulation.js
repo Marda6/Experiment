@@ -156,12 +156,12 @@ function simBuild() {
   });
   simTotal = start;
 
-  // столкновения — примерно в каждой восьмой операции, в некоторых по два
+  // столкновения — из траекторий (toolpaths.js): там, где держатель задевает деталь
   simCollisions = [];
   simOps.forEach((op, index) => {
-    [index % 8 === 3 && 0.4, index % 24 === 11 && 0.75].filter(Boolean).forEach((share) => {
-      simCollisions.push({ t: op.start + op.dur * share, op: index, block: Math.floor(share * op.blocks.length) });
-    });
+    const share = toolpathFor(op.item).collision?.share;
+    if (share === undefined) return;
+    simCollisions.push({ t: op.start + op.dur * share, op: index, block: Math.floor(share * op.blocks.length) });
   });
 
   simT = Math.min(simT, simTotal);
@@ -1430,6 +1430,11 @@ document.addEventListener('treeview', (event) => {
 });
 
 // Дерево операций поменялось (добавили операцию) — код пересобираем; на виду — сразу
+// параметры операции поменялись — столкновения могли уйти или появиться
+document.addEventListener('paramchange', () => {
+  simDirty = true;
+});
+
 document.addEventListener('treechange', () => {
   simDirty = true;
   if (!simVisible) return;

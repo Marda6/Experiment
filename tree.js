@@ -1,5 +1,6 @@
 // Дерево операций: станок → setup → operations (детали и группы пока скрыты).
-// Данные пока сгенерированы, чтобы показать объём в сотни операций.
+// Проект — корпус Housing (деталь — в toolpaths.js и scene.js): карман, паз, четыре резьбовых отверстия M8,
+// наружный контур и фаски; второй установ — деталь перевёрнута, обрабатывается низ.
 
 const OPERATION_POOLS = {
   Roughing: ['Face milling', 'Adaptive roughing', 'Pocket roughing', 'Rest roughing', 'Slot roughing'],
@@ -37,32 +38,49 @@ const OPERATION_TOOLS = {
   'Edge break': ['T16', 'Chamfer mill 90°'],
 };
 
-const GROUPS = Object.keys(OPERATION_POOLS);
-const OPERATION_COUNTS = [22, 14, 30, 30, 10]; // операций в каждой группе установа
+// Вылет инструмента из держателя, мм: короткая Ø6 не достаёт до дна кармана (25 мм) — держатель заденет стенку.
+// Остальные — с запасом. Длинный держатель добавляет вылет (toolStickOut, inspector.js)
+const TOOL_STICKOUT = { 'Ø6 end mill': 22 };
+const TOOL_STICKOUT_DEFAULT = 45;
 
-// Все операции стартуют в начальном статусе — «не рассчитано»; дальше статусы меняют Calculate и сброс
-function makeOperations(group, count) {
-  const pool = OPERATION_POOLS[group];
-  return Array.from({ length: count }, (_, i) => {
-    const base = pool[i % pool.length];
-    const round = Math.floor(i / pool.length);
-    return {
-      name: base + (round ? ` ${round + 1}` : ''),
-      type: base, // тип — для иконки (op-icons.js)
-      group, // группа в дереве не показывается, но нужна ассистенту в чате
-      tool: OPERATION_TOOLS[base],
-      status: 'not-calculated',
-    };
-  });
+// Операция проекта: тип (иконка, генератор траектории), группа (для чата), инструмент, свои параметры —
+// поверх значений Inspector по умолчанию. Ключ параметра — «Вкладка › Параметр»
+function projectOp(type, params = {}, name = type) {
+  const group = Object.keys(OPERATION_POOLS).find((key) => OPERATION_POOLS[key].includes(type));
+  return { name, type, group, tool: OPERATION_TOOLS[type], status: 'not-calculated', params };
 }
 
-// Детали и группы пока не показываем — операции лежат прямо в установе, по порядку групп
+const paramVal = (value) => ({ val: value });
+const opSpeeds = (spindle, feed) => ({ 'Speeds › Spindle speed': paramVal(`${spindle} rpm`), 'Speeds › Feed rate': paramVal(`${feed} mm/min`) });
+
+// Детали и группы пока не показываем — операции лежат прямо в установе, в порядке обработки
 const treeData = {
   name: 'DMU 50',
-  children: ['Setup 1', 'Setup 2'].map((setup) => ({
-    name: setup,
-    children: GROUPS.flatMap((group, g) => makeOperations(group, OPERATION_COUNTS[g])),
-  })),
+  children: [
+    {
+      name: 'Setup 1',
+      children: [
+        projectOp('Face milling', { 'Strategy › Stepover': paramVal('35.000'), 'Parameters › Step down': paramVal('2 mm'), ...opSpeeds(3200, 1500) }),
+        projectOp('Pocket roughing', { 'Strategy › Stepover': paramVal('6.000'), 'Parameters › Step down': paramVal('5 mm'), ...opSpeeds(8000, 1600) }),
+        projectOp('Rest roughing', { 'Strategy › Pattern': paramVal('Offset'), 'Strategy › Stepover': paramVal('2.400'), 'Parameters › Step down': paramVal('5 mm'), ...opSpeeds(12000, 900) }),
+        projectOp('Wall finishing', { 'Strategy › Pattern': paramVal('Offset'), 'Strategy › Stock to leave': paramVal('0.000'), 'Parameters › Step down': paramVal('5 mm'), ...opSpeeds(10000, 1100) }),
+        projectOp('Floor finishing', { 'Strategy › Pattern': paramVal('Offset'), 'Strategy › Stepover': paramVal('7.000'), 'Strategy › Stock to leave': paramVal('0.000'), ...opSpeeds(9000, 1000) }),
+        projectOp('Slot roughing', { 'Strategy › Pattern': paramVal('Offset'), 'Parameters › Step down': paramVal('4 mm'), ...opSpeeds(9500, 1200) }),
+        projectOp('Contour 2D', { 'Strategy › Pattern': paramVal('Offset'), 'Strategy › Stock to leave': paramVal('0.000'), 'Parameters › Step down': paramVal('11 mm'), ...opSpeeds(10000, 1400) }),
+        projectOp('Spot drilling', { 'Hole › Hole type': paramVal('Blind'), 'Hole › Depth': paramVal('3.5 mm'), ...opSpeeds(2500, 300) }),
+        projectOp('Drilling Ø6.8', { 'Hole › Hole type': paramVal('Blind'), 'Hole › Depth': paramVal('22 mm'), ...opSpeeds(3600, 450) }),
+        projectOp('Tapping M8', { 'Hole › Hole type': paramVal('Blind'), 'Hole › Depth': paramVal('18 mm'), ...opSpeeds(600, 750) }),
+        projectOp('Chamfer 0.5×45°', opSpeeds(8000, 800)),
+      ],
+    },
+    {
+      name: 'Setup 2',
+      children: [
+        projectOp('Face milling', { 'Strategy › Stepover': paramVal('35.000'), 'Parameters › Step down': paramVal('2 mm'), ...opSpeeds(3200, 1500) }, 'Face milling 2'),
+        projectOp('Chamfer 0.5×45°', opSpeeds(8000, 800), 'Chamfer 0.5×45° 2'),
+      ],
+    },
+  ],
 };
 
 // Статус ветки — худший среди операций внутри
@@ -95,6 +113,9 @@ function renderNode(node, level) {
   const kind = level === 0 ? 'machine' : level === 1 ? 'setup' : 'operation';
   row.append(toggle, treeNodeIcon(kind, node.type), name);
   item.append(row);
+
+  // свои параметры операции — Inspector показывает их поверх значений по умолчанию (inspector.js)
+  if (node.params) item.opParams = node.params;
 
   // Столбик инструмента: номер — ссылка на инструмент, рядом название
   if (node.tool) {
@@ -151,10 +172,12 @@ function refreshOperationIndex() {
   document.dispatchEvent(new CustomEvent('treechange'));
 }
 
-// Статус операции меняется на ходу (расчёт, сброс) — иконка заменяется, ветки пересчитываются
+// Статус операции меняется на ходу (расчёт, сброс) — иконка заменяется, ветки пересчитываются.
+// Остальные (сцена — траектории, toolpaths.js — текст ошибки) узнают по событию statuschange
 function setStatus(item, status) {
   item.dataset.status = status;
   item.querySelector(':scope > .tree__row > .status').replaceWith(statusIcon(status));
+  document.dispatchEvent(new CustomEvent('statuschange', { detail: { item, status } }));
 }
 
 function refreshBranchStatuses() {

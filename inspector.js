@@ -75,10 +75,11 @@ const INSPECTOR_TABS = {
     { label: 'Check workpiece', ctl: 'toggle', on: false, indent: 1, group: 'safe' },
     { label: 'Safe distance', ctl: 'input', val: '20 mm', indent: 1, group: 'safe' },
   ],
-  // Tool — инструмент выбранной операции (номер и название из дерева)
+  // Tool — инструмент выбранной операции (номер и название из дерева); вылет — от инструмента и держателя
   Tool: (item) => {
     const { tool = '—', toolName = '—' } = item?.dataset ?? {};
     const diameter = toolName.match(/Ø([\d.]+)/)?.[1];
+    const stickOut = toolStickOut(item);
     return [
       { label: 'Tool', ctl: 'dropdown', val: toolName, opts: [toolName] },
       { label: 'Number', ctl: 'readonly', val: tool },
@@ -87,10 +88,11 @@ const INSPECTOR_TABS = {
       { head: 'Geometry', group: 'geom' },
       { label: 'Diameter', ctl: 'readonly', val: diameter ? `${diameter} mm` : '—', indent: 1, group: 'geom' },
       { label: 'Length (L)', ctl: 'readonly', val: '75 mm', indent: 1, group: 'geom' },
-      { label: 'Working length (WL)', ctl: 'readonly', val: '30 mm', indent: 1, group: 'geom' },
+      { label: 'Working length (WL)', ctl: 'readonly', val: `${Math.min(30, stickOut - 4)} mm`, indent: 1, group: 'geom' },
       { head: 'Holder', group: 'holder' },
-      { label: 'Holder', ctl: 'dropdown', val: 'HSK-A63 ER32', opts: ['HSK-A63 ER32', 'HSK-A63 Weldon'], indent: 1, group: 'holder' },
+      { label: 'Holder', ctl: 'dropdown', val: HOLDER_DEFAULT, opts: [HOLDER_DEFAULT, HOLDER_LONG, 'HSK-A63 Weldon'], indent: 1, group: 'holder' },
       { label: 'Holder length', ctl: 'readonly', val: '100 mm', indent: 1, group: 'holder' },
+      { label: 'Stick-out', ctl: 'readonly', val: `${stickOut} mm`, indent: 1, group: 'holder' },
     ];
   },
   Speeds: [
@@ -120,15 +122,32 @@ let inspectorTab = 'Strategy'; // открытая вкладка; если у �
 
 /* ---------- Значения параметров у узлов ---------- */
 
-// Узел → { «Вкладка › Параметр»: { val, on } } — только то, что отличается от строки по умолчанию
+// Узел → { «Вкладка › Параметр»: { val, on } } — правки поверх значений операции проекта (item.opParams, tree.js)
+// и значений по умолчанию
 const nodeParams = new WeakMap();
 const paramKey = (tab, label) => `${tab} › ${label}`;
 
 const tabRows = (item, tab) => (typeof INSPECTOR_TABS[tab] === 'function' ? INSPECTOR_TABS[tab](item) : INSPECTOR_TABS[tab]);
 
+// Своё значение узла (проект и правки) — без значения по умолчанию
+function storedParam(item, tab, label) {
+  const key = paramKey(tab, label);
+  const own = { ...item?.opParams?.[key], ...nodeParams.get(item)?.[key] };
+  return Object.keys(own).length ? own : null;
+}
+
 // Строка с текущими значениями узла
 function rowWithParams(item, tab, row) {
-  return { ...row, ...nodeParams.get(item)?.[paramKey(tab, row.label)] };
+  return { ...row, ...storedParam(item, tab, row.label) };
+}
+
+// Вылет инструмента: свой у инструмента (TOOL_STICKOUT, tree.js), длинный держатель добавляет 20 мм
+const HOLDER_DEFAULT = 'HSK-A63 ER32';
+const HOLDER_LONG = 'HSK-A63 ER32 long';
+
+function toolStickOut(item) {
+  const base = TOOL_STICKOUT[item?.dataset.toolName] ?? TOOL_STICKOUT_DEFAULT;
+  return base + (storedParam(item, 'Tool', 'Holder')?.val === HOLDER_LONG ? 20 : 0);
 }
 
 // Текущее значение параметра узла: { val, on } (как в строке вкладки)
@@ -291,7 +310,17 @@ attachColumnDivider(inspSplit, {
   },
 });
 
-new ResizeObserver(syncInspLabel).observe(inspectorBody);
+// Разделитель подписей — от низа заголовка вкладки: над ним могут стоять полосы (агент, ошибка).
+// Свёрнутый инспектор не меряется — меряем снова, когда он раскроется (ResizeObserver)
+function placeInspSplit() {
+  const title = inspectorBody.querySelector('.insp__title');
+  if (title?.offsetHeight) inspSplit.style.top = `${title.offsetTop + title.offsetHeight}px`;
+}
+
+new ResizeObserver(() => {
+  syncInspLabel();
+  placeInspSplit();
+}).observe(inspectorBody);
 
 /* ---------- Рейка и вкладка ---------- */
 
@@ -340,6 +369,7 @@ function renderInspector() {
   inspector.append(rail, main, inspSplit);
   inspectorBody.replaceChildren(inspector);
   inspectorDecorators.forEach((decorate) => decorate({ inspector, main, rail, item, tab: inspectorTab }));
+  placeInspSplit();
 }
 
 document.addEventListener('treeselect', renderInspector);

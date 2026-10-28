@@ -32,7 +32,7 @@ function scrollRowIntoView(item) {
   tree.scrollTop += rect.top - view.top - (view.height - rect.height) / 2;
 }
 
-/* ---------- Calculate: шаги статуса ENCY — половина круга → полный → готово ---------- */
+/* ---------- Calculate: шаги статуса ENCY — половина круга → полный → готово (или ошибка: calcResultOf, toolpaths.js) ---------- */
 
 const CALC_PENDING = ['not-calculated', 'calculated', 'progress-1', 'progress-2'];
 const CALC_KEEP = ['error', 'warning', 'warning-outline']; // ошибки и предупреждения правит пользователь
@@ -74,7 +74,9 @@ function calcStep() {
     run.stage = 0;
   }
 
-  setStatus(run.current, CALC_STEPS[run.stage]);
+  // последний шаг — итог расчёта: траектория со столкновением — ошибка
+  const last = run.stage === CALC_STEPS.length - 1;
+  setStatus(run.current, last ? calcResultOf(run.current) : CALC_STEPS[run.stage]);
   refreshBranchStatuses();
   run.stage += 1;
 
@@ -550,14 +552,15 @@ const VIEW_SETTINGS = {
     treeMenuLabel('Show under the header'),
     treeMenuRowSwitch('Model tools', modelToolsRow, MODEL_TOOLS_KEY),
   ],
-  // где управление симуляцией: в панели (компактно, как в ENCY по умолчанию) или под сценой с таймлайном
+  // Режим Timeline — первым, как «одна операция»: включён — управление симуляцией под сценой с таймлайном,
+  // выключен — компактно в шапке панели (как в ENCY по умолчанию)
   simulation: () => {
     const line = document.createElement('div');
     line.className = 'treemenu__line';
+    const timeline = treeMenuSwitch('Timeline', !simCompact, (on) => simSetCompact(!on));
+    timeline.title = 'Simulation controls under the 3D view, with a timeline';
     return [
-      treeMenuLabel('Simulation controls'),
-      treeMenuItem('In the panel', { current: simCompact, onPick: () => simSetCompact(true) }),
-      treeMenuItem('Under the view, with timeline', { current: !simCompact, onPick: () => simSetCompact(false) }),
+      timeline,
       line,
       treeMenuLabel('Show under the header'),
       treeMenuRowSwitch('Search', simSearchRow, SIM_SEARCH_KEY),
