@@ -5153,3 +5153,405 @@ body {
 .chat__pick:hover svg {
   opacity: 1;
 }
+
+/* ---------- История CamAgent (agent.js) ---------- */
+
+/* Метка ✦ — правки агента, которые ещё не просмотрены: у операции в дереве, у веток над ней, в Inspector */
+.agent-mark {
+  width: 9px;
+  height: 9px;
+  fill: var(--accent);
+}
+
+.tree__agent {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+}
+
+.tree__agent--branch .agent-mark {
+  opacity: 0.6;
+}
+
+/* На выделенной строке акцент может слиться с подложкой — метка цветом текста */
+.tree__item[aria-selected="true"] > .tree__row .agent-mark {
+  fill: currentColor;
+}
+
+/* Маленькие кнопки-иконки: откатить, раскрыть */
+.agent-icon-btn {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: var(--layer-radius);
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.agent-icon-btn:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.agent-icon-btn:focus-visible {
+  opacity: 1;
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.agent-undo,
+.agent-chat {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.agent-chev {
+  width: 8px;
+  height: 5px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+[aria-expanded="true"] > .agent-chev {
+  transform: none;
+}
+
+/* Карточка захода — под ответом агента: шапка, операции (раскрываются до правок), оценка, действия.
+   Строки и кнопки — зоны во всю ширину, разделены линиями, как в панелях */
+.agent-run {
+  --agent-line: color-mix(in srgb, currentColor 14%, transparent);
+  --agent-muted: color-mix(in srgb, currentColor 55%, transparent);
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--layer-radius);
+  box-shadow: inset 0 0 0 1px var(--agent-line);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.agent-run.is-flash {
+  animation: agent-flash 1.2s ease;
+}
+
+@keyframes agent-flash {
+  0%,
+  40% {
+    background: color-mix(in srgb, currentColor 12%, transparent);
+  }
+}
+
+.agent-run__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px 0 10px;
+  box-shadow: inset 0 -1px 0 var(--agent-line);
+}
+
+.agent-run__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.agent-run__state {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: var(--layer-radius);
+  font-size: 11px;
+  color: var(--agent-muted);
+}
+
+.agent-run[data-state="review"] .agent-run__state,
+.agent-run[data-state="proposed"] .agent-run__state {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+}
+
+.agent-run__ops {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  list-style: none;
+}
+
+.agent-run__group {
+  padding: 6px 10px 2px;
+  font-size: 11px;
+  color: var(--agent-muted);
+}
+
+.agent-run__group:first-child {
+  padding-top: 2px;
+}
+
+.agent-op__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 6px 0 4px;
+}
+
+.agent-op__row:hover {
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.agent-op__name {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 2px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+  cursor: pointer;
+}
+
+.agent-op__name:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.agent-op__name:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.agent-op__count {
+  flex-shrink: 0;
+  min-width: 16px;
+  color: var(--agent-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.agent-op[data-state="reverted"] .agent-op__name {
+  color: var(--agent-muted);
+  text-decoration: line-through;
+}
+
+/* Правки операции: параметр, было → стало, причина */
+.agent-op__changes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 8px 8px 28px;
+  list-style: none;
+}
+
+.agent-change__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+
+.agent-change__param {
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-change__tab {
+  color: var(--agent-muted);
+}
+
+.agent-change__diff {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.agent-change__from {
+  color: var(--agent-muted);
+  text-decoration: line-through;
+}
+
+.agent-change__to {
+  font-weight: 500;
+}
+
+.agent-change__state {
+  font-size: 11px;
+  color: var(--agent-muted);
+}
+
+.agent-change__why {
+  color: var(--agent-muted);
+}
+
+.agent-change[data-state="reverted"] .agent-change__to,
+.agent-change[data-state="discarded"] .agent-change__to {
+  color: var(--agent-muted);
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+.agent-change[data-state="reverted"] .agent-change__from {
+  color: inherit;
+  text-decoration: none;
+}
+
+.agent-run__metric {
+  padding: 6px 10px;
+  box-shadow: inset 0 1px 0 var(--agent-line);
+}
+
+.agent-run__label {
+  color: var(--agent-muted);
+}
+
+.agent-run__time {
+  font-variant-numeric: tabular-nums;
+}
+
+.agent-run[data-state="reverted"] .agent-run__time,
+.agent-run[data-state="discarded"] .agent-run__time {
+  color: var(--agent-muted);
+  text-decoration: line-through;
+}
+
+.agent-run__actions {
+  display: flex;
+  box-shadow: inset 0 1px 0 var(--agent-line);
+}
+
+.agent-run__action {
+  flex: 1;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--agent-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.agent-run__action + .agent-run__action {
+  box-shadow: inset 1px 0 0 var(--agent-line);
+}
+
+.agent-run__action:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  color: inherit;
+}
+
+.agent-run__action:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: -1px;
+}
+
+.agent-run__action--main {
+  color: inherit;
+  font-weight: 500;
+}
+
+/* Inspector: полоса над вкладкой — «CamAgent · N changes» и действия зонами во всю высоту.
+   Прилипает к верху при прокрутке; разделитель подписей начинается ниже неё */
+.insp-review {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--layer-head);
+  padding-left: var(--layer-padding-x);
+  background: color-mix(in srgb, var(--accent) 8%, var(--layer-bg));
+  box-shadow: inset 0 -1px 0 var(--layer-line);
+  font-size: 13px;
+}
+
+.insp-review__text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.insp-review__chat {
+  width: var(--layer-head);
+  min-width: 0;
+  padding: 0;
+}
+
+.insp.has-review .insp-split {
+  top: calc(var(--tree-row) + var(--layer-head));
+}
+
+/* Строка, изменённая агентом: полоса акцента слева, прежнее значение зачёркнуто, ↺ — при наведении */
+.irow--agent {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.irow__was {
+  flex-shrink: 1;
+  min-width: 0;
+  margin-left: auto;
+  padding-left: 6px;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.irow__undo {
+  width: 20px;
+  height: 20px;
+  margin-left: 2px;
+  visibility: hidden;
+}
+
+.irow--agent:hover .irow__undo,
+.irow--agent:focus-within .irow__undo {
+  visibility: visible;
+}
+
+/* Вкладка рейки, где есть непросмотренные правки, — точка акцента в углу */
+.insp__tab.has-agent {
+  position: relative;
+}
+
+.insp__tab.has-agent::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+

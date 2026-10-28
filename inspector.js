@@ -1,7 +1,8 @@
 // Inspector — примерка инспектора ENCY: слева рейка вкладок (Core icn_inspector),
 // справа заголовок вкладки и строки «подпись | контрол». Набор вкладок зависит от узла,
 // выбранного в дереве, как в ENCY. Параметры — из прототипа ENCY_UI, значения примерные.
-// INSPECTOR_ICONS — из inspector-icons.js; selectedItem — из tree.js
+// Значения у каждого узла свои: правка контрола запоминается (nodeParams), агент меняет их через setParam.
+// INSPECTOR_ICONS — из inspector-icons.js; selectedItem — из tree.js; markProjectChanged — из tree-tools.js
 
 const inspectorBody = document.querySelector('#inspector-body');
 
@@ -117,6 +118,47 @@ const INSPECTOR_TABS = {
 
 let inspectorTab = 'Strategy'; // открытая вкладка; если у узла её нет — первая
 
+/* ---------- Значения параметров у узлов ---------- */
+
+// Узел → { «Вкладка › Параметр»: { val, on } } — только то, что отличается от строки по умолчанию
+const nodeParams = new WeakMap();
+const paramKey = (tab, label) => `${tab} › ${label}`;
+
+const tabRows = (item, tab) => (typeof INSPECTOR_TABS[tab] === 'function' ? INSPECTOR_TABS[tab](item) : INSPECTOR_TABS[tab]);
+
+// Строка с текущими значениями узла
+function rowWithParams(item, tab, row) {
+  return { ...row, ...nodeParams.get(item)?.[paramKey(tab, row.label)] };
+}
+
+// Текущее значение параметра узла: { val, on } (как в строке вкладки)
+function paramValue(item, tab, label) {
+  const row = tabRows(item, tab)?.find((other) => other.label === label);
+  return row ? rowWithParams(item, tab, row) : null;
+}
+
+function setParam(item, tab, label, patch) {
+  const params = nodeParams.get(item) ?? {};
+  const key = paramKey(tab, label);
+  params[key] = { ...params[key], ...patch };
+  nodeParams.set(item, params);
+}
+
+// Правка руками: запомнить, проект — «не сохранено», остальным — событие paramchange
+function editParam(item, tab, label, patch) {
+  setParam(item, tab, label, patch);
+  markProjectChanged();
+  document.dispatchEvent(new CustomEvent('paramchange', { detail: { item, tab, label } }));
+}
+
+// После отрисовки вкладки: ({ main, rail, item, tab }) — дополнить строки и рейку (agent.js)
+const inspectorDecorators = [];
+
+function showInspectorTab(tab) {
+  inspectorTab = tab;
+  renderInspector();
+}
+
 /* ---------- Контролы ---------- */
 
 function el(tag, className, text) {
@@ -126,34 +168,43 @@ function el(tag, className, text) {
   return node;
 }
 
-function switchControl(on, label) {
+// onEdit({ on } | { val }) — контрол поменяли руками
+function switchControl(on, label, onEdit) {
   const toggle = el('button', 'ictl-switch');
   toggle.type = 'button';
   toggle.setAttribute('role', 'switch');
   toggle.setAttribute('aria-checked', String(on));
   toggle.setAttribute('aria-label', label);
-  toggle.addEventListener('click', () => toggle.setAttribute('aria-checked', String(toggle.getAttribute('aria-checked') !== 'true')));
+  toggle.addEventListener('click', () => {
+    const next = toggle.getAttribute('aria-checked') !== 'true';
+    toggle.setAttribute('aria-checked', String(next));
+    onEdit({ on: next });
+  });
   return toggle;
 }
 
-function inputControl(value, label) {
+function inputControl(value, label, onEdit) {
   const input = el('input', 'ictl-input');
   input.value = value;
   input.setAttribute('aria-label', label);
+  input.addEventListener('change', () => onEdit({ val: input.value }));
   return input;
 }
 
-function control(row) {
+function control(row, onEdit) {
   const box = el('div', 'irow__ctl');
-  if (row.ctl === 'input') box.append(inputControl(row.val, row.label));
+  if (row.ctl === 'input') box.append(inputControl(row.val, row.label, onEdit));
   if (row.ctl === 'readonly') box.append(el('span', 'ictl-readonly', row.val));
-  if (row.ctl === 'toggle') box.append(switchControl(row.on, row.label));
-  if (row.ctl === 'toggleInput') box.append(switchControl(row.on, row.label), inputControl(row.val, row.label));
+  if (row.ctl === 'toggle') box.append(switchControl(row.on, row.label, onEdit));
+  if (row.ctl === 'toggleInput') box.append(switchControl(row.on, row.label, onEdit), inputControl(row.val, row.label, onEdit));
   if (row.ctl === 'dropdown') {
     const wrap = el('span', 'ictl-dropdown');
     const select = el('select', 'ictl-select');
     select.setAttribute('aria-label', row.label);
     (row.opts ?? [row.val]).forEach((option) => select.append(new Option(option, option, false, option === row.val)));
+    // значение не из списка (поставил агент) — тоже показываем
+    if (select.value !== row.val) select.append(new Option(row.val, row.val, false, true));
+    select.addEventListener('change', () => onEdit({ val: select.value }));
     wrap.append(select);
     box.append(wrap);
   }
@@ -162,7 +213,7 @@ function control(row) {
 
 /* ---------- Строки ---------- */
 
-function buildRow(row) {
+function buildRow(row, item, tab) {
   if (row.type === 'divider') return el('div', 'irow-divider');
 
   const line = el('div', row.head ? 'irow irow--head' : 'irow');
@@ -188,7 +239,8 @@ function buildRow(row) {
 
   label.append(el('span', 'irow__text', row.label));
   label.title = row.label;
-  line.append(label, control(row));
+  line.dataset.key = paramKey(tab, row.label);
+  line.append(label, control(rowWithParams(item, tab, row), (patch) => editParam(item, tab, row.label, patch)));
   return line;
 }
 
@@ -269,6 +321,7 @@ function renderInspector() {
     button.setAttribute('role', 'tab');
     button.setAttribute('aria-selected', String(tab === inspectorTab));
     button.setAttribute('aria-label', TAB_TITLES[tab] ?? tab);
+    button.dataset.tab = tab;
     button.title = TAB_TITLES[tab] ?? tab;
     button.innerHTML = INSPECTOR_ICONS[tab.toLowerCase()];
     button.addEventListener('click', () => {
@@ -281,12 +334,12 @@ function renderInspector() {
   const main = el('div', 'insp__main');
   main.setAttribute('role', 'tabpanel');
   main.append(el('div', 'insp__title', TAB_TITLES[inspectorTab] ?? inspectorTab));
-  const rows = typeof INSPECTOR_TABS[inspectorTab] === 'function' ? INSPECTOR_TABS[inspectorTab](item) : INSPECTOR_TABS[inspectorTab];
-  rows.forEach((row) => main.append(buildRow(row)));
+  tabRows(item, inspectorTab).forEach((row) => main.append(buildRow(row, item, inspectorTab)));
 
   const inspector = el('div', 'insp');
   inspector.append(rail, main, inspSplit);
   inspectorBody.replaceChildren(inspector);
+  inspectorDecorators.forEach((decorate) => decorate({ inspector, main, rail, item, tab: inspectorTab }));
 }
 
 document.addEventListener('treeselect', renderInspector);

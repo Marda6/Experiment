@@ -328,10 +328,15 @@ function finishReply() {
   }
 }
 
+// Действия агента (agent.js): (question, context, mode) → { text, done(message) } или null.
+// Своё действие — свой текст ответа; done — когда ответ допечатан (остановили ■ — правок нет)
+const chatActions = [];
+
 function respond(question, context) {
   const message = addMessage('assistant', '');
   const body = message.querySelector('.chat__text');
-  const tokens = buildReply(question, context).match(/\S+\s*/g) ?? [];
+  const action = chatActions.map((plan) => plan(question, context, chatSettings.mode)).find(Boolean);
+  const tokens = (action?.text ?? buildReply(question, context)).match(/\S+\s*/g) ?? [];
   let index = 0;
 
   message.classList.add('is-streaming');
@@ -341,8 +346,13 @@ function respond(question, context) {
     body.textContent += tokens[index++];
     if (follow) scrollToBottom();
 
-    if (index < tokens.length) reply.timer = setTimeout(typeNext, 20 + Math.random() * 40);
-    else finishReply();
+    if (index < tokens.length) {
+      reply.timer = setTimeout(typeNext, 20 + Math.random() * 40);
+      return;
+    }
+    action?.done(message);
+    if (follow) scrollToBottom();
+    finishReply();
   };
 
   // Пауза «на подумать», потом печать по словам
